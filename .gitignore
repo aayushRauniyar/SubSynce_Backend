@@ -128,8 +128,6 @@ dmypy.json
 .pyre/
 .idea/
 
-static
-
 # Google drive credential file
 client_secret.json
 
