@@ -1,0 +1,379 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Clients - SubSync{% endblock %}
+
+{% block content %}
+<div class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="hidden lg:flex lg:flex-col lg:w-64 bg-white border-r border-surface-container-high">
+        <!-- Logo -->
+        <div class="flex items-center gap-3 px-6 py-5 border-b border-surface-container-high">
+            <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-on-primary" style="font-size: 20px;">cleaning_services</span>
+            </div>
+            <span class="text-lg font-semibold text-ink">SubSync</span>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 overflow-y-auto px-3 py-4">
+            <div class="space-y-1">
+                <a href="{% url 'ops:dashboard' %}"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+
+                {% if user.role == 'ADMINISTRATOR' %}
+                <a href="{% url 'ops:clients' %}"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium bg-primary/10 text-primary">
+                    <span class="material-symbols-outlined">person</span>
+                    <span>Clients</span>
+                </a>
+                {% endif %}
+
+                {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}
+                <a href="#"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">location_on</span>
+                    <span>Sites</span>
+                </a>
+                {% endif %}
+
+                <a href="#"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">event</span>
+                    <span>Schedules</span>
+                </a>
+
+                <a href="#"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                    <span>Invoices</span>
+                </a>
+
+                {% if user.role == 'OWNER' %}
+                <a href="#"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">group</span>
+                    <span>Users</span>
+                </a>
+                {% endif %}
+            </div>
+        </nav>
+
+        <!-- Footer -->
+        <div class="px-4 py-3 border-t border-surface-container-high">
+            <p class="text-xs text-ink-light text-center">© 2026 SubSync</p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Top Bar -->
+        <header class="sticky top-0 z-30 bg-white border-b border-surface-container-high">
+            <div class="flex items-center justify-between px-4 lg:px-6 py-3">
+                <div class="flex-1 max-w-md">
+                    <h1 class="text-lg font-semibold text-ink">Clients</h1>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button class="relative p-2 rounded-xl hover:bg-surface-container transition-colors">
+                        <span class="material-symbols-outlined text-ink-light">notifications</span>
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+                    </button>
+
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-surface-container transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-primary" style="font-size: 18px;">person</span>
+                        </div>
+                        <span class="hidden md:block text-sm font-medium text-ink">{{ user.username }}</span>
+                        <span class="hidden md:block text-xs text-ink-light">({{ user.role }})</span>
+                    </div>
+
+                    <a href="{% url 'ops:logout' %}"
+                       class="p-2 rounded-xl hover:bg-surface-container transition-colors"
+                       title="Logout">
+                        <span class="material-symbols-outlined text-ink-light">logout</span>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="flex-1 overflow-y-auto">
+            <div class="container mx-auto px-4 py-8">
+                <!-- Page Header -->
+                <div class="flex items-start justify-between mb-8">
+                    <div>
+                        <h1 class="text-3xl font-bold text-ink">Clients</h1>
+                        <p class="text-ink-light mt-2">Manage all your clients in one place.</p>
+                    </div>
+                    <button type="button" onclick="openClientModal()"
+                            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-on-primary text-sm font-medium transition-colors">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                        Add Client
+                    </button>
+                </div>
+
+                <!-- Search -->
+                <form method="get" class="mb-6">
+                    <div class="relative max-w-md">
+                        <div class="absolute left-3 top-1/2 -translate-y-1/2 text-ink-light">
+                            <span class="material-symbols-outlined">search</span>
+                        </div>
+                        <input
+                            type="text"
+                            name="q"
+                            value="{{ query }}"
+                            placeholder="Search by name, email or phone..."
+                            class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm"
+                        >
+                    </div>
+                </form>
+
+                <!-- Clients Table -->
+                <div class="bg-white rounded-2xl border border-surface-container overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-primary text-on-primary text-left">
+                                    <th class="px-6 py-3.5 font-semibold">Client Name</th>
+                                    <th class="px-6 py-3.5 font-semibold">Phone</th>
+                                    <th class="px-6 py-3.5 font-semibold">Email</th>
+                                    <th class="px-6 py-3.5 font-semibold">Sites</th>
+                                    <th class="px-6 py-3.5 font-semibold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for client in page_obj %}
+                                <tr class="border-b border-surface-container last:border-0 hover:bg-surface/60">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold
+                                                {% cycle 'bg-primary/10 text-primary' 'bg-success/10 text-success' 'bg-warning/10 text-warning' 'bg-error/10 text-error' as avatar_color %}">
+                                                {{ client.first_name|first|upper }}{{ client.last_name|first|upper }}
+                                            </div>
+                                            <span class="font-medium text-ink">{{ client.first_name }} {{ client.last_name }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-ink-light">{{ client.phone|default:"—" }}</td>
+                                    <td class="px-6 py-4 text-ink-light">{{ client.email|default:"—" }}</td>
+                                    <td class="px-6 py-4 text-ink-light">{{ client.sites.count }}</td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center justify-end gap-2">
+                                            <button type="button"
+                                                    title="View"
+                                                    onclick="openViewModal('{{ client.first_name|escapejs }} {{ client.last_name|default:''|escapejs }}', '{{ client.phone|default:''|escapejs }}', '{{ client.email|default:''|escapejs }}', {{ client.sites.all|length }})"
+                                                    class="p-2 rounded-lg border border-surface-container-high hover:bg-surface-container transition-colors">
+                                                <span class="material-symbols-outlined text-ink-light" style="font-size: 18px;">visibility</span>
+                                            </button>
+                                            <button type="button"
+                                                    title="Edit"
+                                                    onclick="openClientModal('{{ client.id }}', '{{ client.first_name|escapejs }}', '{{ client.last_name|default:''|escapejs }}', '{{ client.phone|default:''|escapejs }}', '{{ client.email|default:''|escapejs }}')"
+                                                    class="p-2 rounded-lg border border-surface-container-high hover:bg-surface-container transition-colors">
+                                                <span class="material-symbols-outlined text-primary" style="font-size: 18px;">edit</span>
+                                            </button>
+                                            <form method="post" action="{% url 'ops:client_delete' client.id %}"
+                                                  onsubmit="return confirm('Remove {{ client.first_name|escapejs }} {{ client.last_name|default:''|escapejs }}? This cannot be undone.');">
+                                                {% csrf_token %}
+                                                <button type="submit" title="Delete"
+                                                        class="p-2 rounded-lg border border-surface-container-high hover:bg-error/10 transition-colors">
+                                                    <span class="material-symbols-outlined text-error" style="font-size: 18px;">delete</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="px-6 py-12 text-center text-ink-light">
+                                        {% if query %}No clients match "{{ query }}".{% else %}No clients yet. Add your first client to get started.{% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if page_obj.paginator.num_pages > 1 %}
+                    <div class="flex items-center justify-between px-6 py-4 border-t border-surface-container">
+                        <p class="text-sm text-ink-light">
+                            Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ total_clients }} clients
+                        </p>
+                        <div class="flex items-center gap-1.5">
+                            {% if page_obj.has_previous %}
+                            <a href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.previous_page_number }}"
+                               class="w-8 h-8 flex items-center justify-center rounded-lg border border-surface-container-high hover:bg-surface-container text-ink-light">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">chevron_left</span>
+                            </a>
+                            {% endif %}
+                            {% for num in page_obj.paginator.page_range %}
+                            <a href="?{% if query %}q={{ query }}&{% endif %}page={{ num }}"
+                               class="w-8 h-8 flex items-center justify-center rounded-lg text-sm {% if num == page_obj.number %}bg-primary text-on-primary{% else %}border border-surface-container-high hover:bg-surface-container text-ink-light{% endif %}">
+                                {{ num }}
+                            </a>
+                            {% endfor %}
+                            {% if page_obj.has_next %}
+                            <a href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.next_page_number }}"
+                               class="w-8 h-8 flex items-center justify-center rounded-lg border border-surface-container-high hover:bg-surface-container text-ink-light">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">chevron_right</span>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% elif total_clients %}
+                    <div class="px-6 py-4 border-t border-surface-container">
+                        <p class="text-sm text-ink-light">Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ total_clients }} clients</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Add / Edit Client Modal -->
+<div id="client-modal" class="hidden fixed inset-0 z-40 items-center justify-center bg-ink/40 px-4" onclick="if (event.target === this) closeClientModal();">
+    <div class="bg-white rounded-2xl w-full max-w-md p-6">
+        <div class="flex items-center justify-between mb-5">
+            <h2 id="client-modal-title" class="text-lg font-semibold text-ink">Add Client</h2>
+            <button type="button" onclick="closeClientModal()" class="p-1.5 rounded-lg hover:bg-surface-container">
+                <span class="material-symbols-outlined text-ink-light">close</span>
+            </button>
+        </div>
+        <form id="client-form" method="post" action="{% url 'ops:client_create' %}">
+            {% csrf_token %}
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-ink mb-1.5">First Name *</label>
+                    <input type="text" name="first_name" id="field-first-name" required
+                           class="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-ink mb-1.5">Last Name</label>
+                    <input type="text" name="last_name" id="field-last-name"
+                           class="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-ink mb-1.5">Phone</label>
+                    <input type="text" name="phone" id="field-phone"
+                           class="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-ink mb-1.5">Email</label>
+                    <input type="email" name="email" id="field-email"
+                           class="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+                </div>
+            </div>
+            <div class="flex items-center justify-end gap-3 mt-6">
+                <button type="button" onclick="closeClientModal()"
+                        class="px-4 py-2.5 rounded-xl border border-surface-container-high text-sm font-medium text-ink hover:bg-surface-container transition-colors">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-on-primary text-sm font-medium transition-colors">
+                    Save Client
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- View Client Modal -->
+<div id="view-modal" class="hidden fixed inset-0 z-40 items-center justify-center bg-ink/40 px-4" onclick="if (event.target === this) closeViewModal();">
+    <div class="bg-white rounded-2xl w-full max-w-md p-6">
+        <div class="flex items-center justify-between mb-5">
+            <h2 class="text-lg font-semibold text-ink">Client Details</h2>
+            <button type="button" onclick="closeViewModal()" class="p-1.5 rounded-lg hover:bg-surface-container">
+                <span class="material-symbols-outlined text-ink-light">close</span>
+            </button>
+        </div>
+        <div class="space-y-4 text-sm">
+            <div>
+                <p class="text-ink-light">Name</p>
+                <p id="view-name" class="font-medium text-ink"></p>
+            </div>
+            <div>
+                <p class="text-ink-light">Phone</p>
+                <p id="view-phone" class="font-medium text-ink"></p>
+            </div>
+            <div>
+                <p class="text-ink-light">Email</p>
+                <p id="view-email" class="font-medium text-ink"></p>
+            </div>
+            <div>
+                <p class="text-ink-light">Sites</p>
+                <p id="view-sites" class="font-medium text-ink"></p>
+            </div>
+        </div>
+        <div class="flex justify-end mt-6">
+            <button type="button" onclick="closeViewModal()"
+                    class="px-4 py-2.5 rounded-xl border border-surface-container-high text-sm font-medium text-ink hover:bg-surface-container transition-colors">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showModal(el) {
+        closeClientModal();
+        closeViewModal();
+        el.classList.remove('hidden');
+        el.classList.add('flex');
+    }
+
+    function hideModal(el) {
+        el.classList.remove('flex');
+        el.classList.add('hidden');
+    }
+
+    function openClientModal(id, firstName, lastName, phone, email) {
+        const form = document.getElementById('client-form');
+        const title = document.getElementById('client-modal-title');
+
+        if (id) {
+            title.textContent = 'Edit Client';
+            form.action = '/clients/' + id + '/edit/';
+        } else {
+            title.textContent = 'Add Client';
+            form.action = '{% url "ops:client_create" %}';
+        }
+
+        document.getElementById('field-first-name').value = firstName || '';
+        document.getElementById('field-last-name').value = lastName || '';
+        document.getElementById('field-phone').value = phone || '';
+        document.getElementById('field-email').value = email || '';
+
+        showModal(document.getElementById('client-modal'));
+    }
+
+    function closeClientModal() {
+        hideModal(document.getElementById('client-modal'));
+    }
+
+    function openViewModal(name, phone, email, sitesCount) {
+        document.getElementById('view-name').textContent = name;
+        document.getElementById('view-phone').textContent = phone || '—';
+        document.getElementById('view-email').textContent = email || '—';
+        document.getElementById('view-sites').textContent = sitesCount;
+        showModal(document.getElementById('view-modal'));
+    }
+
+    function closeViewModal() {
+        hideModal(document.getElementById('view-modal'));
+    }
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            closeClientModal();
+            closeViewModal();
+        }
+    });
+</script>
+{% endblock %}
