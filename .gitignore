@@ -142,3 +142,6 @@ resources.yaml
 
 # Uploaded site images
 site_images/
+
+# User-uploaded media (client photos, site images, etc.)
+/media/

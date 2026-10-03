@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 
 from client.model.clientmanage import Client
 from ops.forms import ClientForm
@@ -121,24 +121,27 @@ def clients_view(request):
 
 
 @login_required
-@require_POST
+@require_http_methods(['GET', 'POST'])
 def client_create_view(request):
     if not _is_admin(request):
         messages.error(request, 'Only administrators can manage clients.')
         return redirect('ops:dashboard')
 
-    form = ClientForm(request.POST)
+    if request.method == 'GET':
+        return render(request, 'ops/client_add.html', {'user': request.user, 'form': ClientForm()})
+
+    form = ClientForm(request.POST, request.FILES)
     if form.is_valid():
         email = form.cleaned_data.get('email')
         if email and Client.objects.filter(email=email).exists():
-            messages.error(request, 'A client with this email already exists.')
-            return redirect('ops:clients')
+            form.add_error('email', 'A client with this email already exists.')
+            return render(request, 'ops/client_add.html', {'user': request.user, 'form': form})
         form.save()
         messages.success(request, 'Client added successfully.')
-    else:
-        messages.error(request, 'Could not add client. Please check the details and try again.')
+        return redirect('ops:clients')
 
-    return redirect('ops:clients')
+    messages.error(request, 'Could not add client. Please check the details and try again.')
+    return render(request, 'ops/client_add.html', {'user': request.user, 'form': form})
 
 
 @login_required
@@ -153,7 +156,7 @@ def client_update_view(request, pk):
         messages.error(request, 'Client not found.')
         return redirect('ops:clients')
 
-    form = ClientForm(request.POST, instance=client)
+    form = ClientForm(request.POST, request.FILES, instance=client)
     if form.is_valid():
         phone = form.cleaned_data.get('phone')
         if phone and Client.objects.filter(phone=phone).exclude(id=pk).exists():

@@ -1,0 +1,415 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add Client - SubSync{% endblock %}
+
+{% block content %}
+<div class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="hidden lg:flex lg:flex-col lg:w-64 bg-white border-r border-surface-container-high">
+        <!-- Logo -->
+        <div class="flex items-center gap-3 px-6 py-5 border-b border-surface-container-high">
+            <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-on-primary" style="font-size: 20px;">cleaning_services</span>
+            </div>
+            <span class="text-lg font-semibold text-ink">SubSync</span>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 overflow-y-auto px-3 py-4">
+            <div class="space-y-1">
+                <a href="{% url 'ops:dashboard' %}"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+
+                {% if user.role == 'ADMINISTRATOR' %}
+                <a href="{% url 'ops:clients' %}"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium bg-primary/10 text-primary">
+                    <span class="material-symbols-outlined">person</span>
+                    <span>Clients</span>
+                </a>
+                {% endif %}
+
+                {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}
+                <a href="#"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">location_on</span>
+                    <span>Sites</span>
+                </a>
+                {% endif %}
+
+                <a href="#"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">event</span>
+                    <span>Schedules</span>
+                </a>
+
+                <a href="#"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                    <span>Invoices</span>
+                </a>
+
+                {% if user.role == 'OWNER' %}
+                <a href="#"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">group</span>
+                    <span>Users</span>
+                </a>
+                {% endif %}
+            </div>
+        </nav>
+
+        <!-- Footer -->
+        <div class="px-4 py-3 border-t border-surface-container-high">
+            <p class="text-xs text-ink-light text-center">© 2026 SubSync</p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Top Bar -->
+        <header class="sticky top-0 z-30 bg-white border-b border-surface-container-high">
+            <div class="flex items-center justify-between px-4 lg:px-6 py-3">
+                <div class="flex-1 max-w-md">
+                    <h1 class="text-lg font-semibold text-ink">Clients</h1>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button class="relative p-2 rounded-xl hover:bg-surface-container transition-colors">
+                        <span class="material-symbols-outlined text-ink-light">notifications</span>
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+                    </button>
+
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-surface-container transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-primary" style="font-size: 18px;">person</span>
+                        </div>
+                        <span class="hidden md:block text-sm font-medium text-ink">{{ user.username }}</span>
+                        <span class="hidden md:block text-xs text-ink-light">({{ user.role }})</span>
+                    </div>
+
+                    <a href="{% url 'ops:logout' %}"
+                       class="p-2 rounded-xl hover:bg-surface-container transition-colors"
+                       title="Logout">
+                        <span class="material-symbols-outlined text-ink-light">logout</span>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="flex-1 overflow-y-auto">
+            <div class="container mx-auto px-4 py-8 max-w-[1072px]">
+
+                <!-- Breadcrumb -->
+                <nav class="flex items-center gap-[12px] mb-[24px] text-[12px]" aria-label="Breadcrumb">
+                    <a href="{% url 'ops:clients' %}" class="text-[#494949] hover:text-ink transition-colors">Clients</a>
+                    <span class="material-symbols-outlined text-[#494949]" style="font-size: 14px;">chevron_right</span>
+                    <span class="text-ink font-medium">Add Client</span>
+                </nav>
+
+                <!-- Page Heading -->
+                <div class="mb-[32px]">
+                    <h2 class="text-[28px] leading-[40px] font-bold text-ink">Add Client</h2>
+                    <p class="text-[14px] leading-[24px] text-[#494949]">Create a new client record and assign sites later.</p>
+                </div>
+
+                <!-- Two column layout: form card + info card -->
+                <div class="flex flex-col xl:flex-row items-start gap-[16px]">
+
+                    <!-- ============ Form Card ============ -->
+                    <div class="w-full xl:w-[707px] shrink-0">
+                        <form method="post" action="{% url 'ops:client_create' %}" enctype="multipart/form-data" novalidate
+                              class="bg-white border-[0.6px] border-[rgba(91,90,119,0.2)] rounded-[16px] p-[24px] flex flex-col gap-[40px]">
+                            {% csrf_token %}
+
+                            <!-- Non-field errors -->
+                            {% if form.non_field_errors %}
+                            <div class="rounded-[8px] border border-[#ff383c]/30 bg-[#ff383c]/5 px-[16px] py-[12px]">
+                                {% for error in form.non_field_errors %}
+                                <p class="text-[12px] leading-[20px] text-[#ff383c]">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            <!-- Client Photo -->
+                            <div class="flex flex-col gap-[16px]">
+                                <div class="flex items-center h-[36px]">
+                                    <p class="text-[16px] leading-[20px] font-medium text-[#202224]">Client Photo</p>
+                                </div>
+
+                                <div class="flex flex-col sm:flex-row gap-[24px] items-start">
+                                    <!-- Upload box -->
+                                    <div id="photo-dropzone"
+                                         class="flex flex-col items-center justify-center gap-[12px] w-full sm:w-[280px] h-[180px] shrink-0 rounded-[12px] border-[1.5px] border-dashed border-[rgba(73,73,73,0.3)] bg-[rgba(73,73,73,0.02)] px-[16px] py-[16px] text-center">
+                                        <img id="photo-preview-img" src="" alt="" class="hidden w-[64px] h-[64px] rounded-full object-cover">
+                                        <div id="photo-placeholder-icon" class="w-[40px] h-[40px] rounded-full bg-primary/10 flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-primary" style="font-size: 20px;">photo_camera</span>
+                                        </div>
+                                        <div class="flex flex-col gap-[2px]">
+                                            <p id="photo-filename" class="text-[12px] font-medium text-[#222]">Upload client photo</p>
+                                            <p class="text-[10px] leading-[16px] text-[#494949]">JPG, PNG up to 5MB</p>
+                                        </div>
+                                        <label for="field-photo"
+                                               class="cursor-pointer inline-flex items-center px-[14px] py-[6px] rounded-[8px] bg-white border-[0.8px] border-[rgba(173,173,173,0.5)] text-[12px] font-medium text-[#222] hover:bg-surface-container transition-colors">
+                                            Choose file
+                                        </label>
+                                        <input type="file"
+                                               name="{{ form.photo.html_name }}"
+                                               id="field-photo"
+                                               accept="image/jpeg,image/png"
+                                               class="hidden">
+                                    </div>
+
+                                    <!-- Helper copy -->
+                                    <div class="flex flex-col gap-[4px] pt-[4px]">
+                                        <p class="text-[12px] font-medium text-[#222]">Optional</p>
+                                        <p class="text-[12px] leading-[20px] text-[#494949] max-w-[320px]">
+                                            Add a photo or logo for easy identification. This will be visible across the system.
+                                        </p>
+                                    </div>
+                                </div>
+                                {% for error in form.photo.errors %}
+                                <p class="text-[12px] leading-[20px] text-[#ff383c]">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Client Information -->
+                            <div class="flex flex-col gap-[24px]">
+                                <div class="flex items-center h-[36px]">
+                                    <p class="text-[16px] leading-[20px] font-medium text-[#202224]">Client Information</p>
+                                </div>
+
+                                <div class="flex flex-col gap-[16px]">
+
+                                    <!-- Row: First name / Last name -->
+                                    <div class="flex flex-col sm:flex-row gap-[16px] sm:gap-[24px] items-start">
+                                        <!-- First name -->
+                                        <div class="flex flex-col gap-[8px] w-full sm:flex-1 sm:min-w-0">
+                                            <label for="{{ form.first_name.id_for_label }}" class="flex items-center gap-[6px] text-[12px]">
+                                                <span class="font-medium text-[#222]">First name</span>
+                                                <span class="text-[#ff383c] leading-[20px]">*</span>
+                                            </label>
+                                            <input type="text"
+                                                   name="{{ form.first_name.html_name }}"
+                                                   id="{{ form.first_name.id_for_label }}"
+                                                   value="{{ form.first_name.value|default_if_none:'' }}"
+                                                   placeholder="Tessa"
+                                                   maxlength="255"
+                                                   required
+                                                   class="w-full h-[36px] px-[16px] py-[8px] rounded-[6px] bg-white/[0.08] border text-[14px] leading-[20px] text-ink placeholder:text-[rgba(73,73,73,0.5)] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors {% if form.first_name.errors %}border-[#ff383c]{% else %}border-[rgba(73,73,73,0.25)]{% endif %}">
+                                            {% for error in form.first_name.errors %}
+                                            <p class="text-[8px] leading-[20px] tracking-[-0.16px] text-[#ff383c]">{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+
+                                        <!-- Last name -->
+                                        <div class="flex flex-col gap-[8px] w-full sm:flex-1 sm:min-w-0">
+                                            <label for="{{ form.last_name.id_for_label }}" class="flex items-center gap-[6px] text-[12px]">
+                                                <span class="font-medium text-[#222]">Last name</span>
+                                            </label>
+                                            <input type="text"
+                                                   name="{{ form.last_name.html_name }}"
+                                                   id="{{ form.last_name.id_for_label }}"
+                                                   value="{{ form.last_name.value|default_if_none:'' }}"
+                                                   placeholder="Nguyen"
+                                                   maxlength="255"
+                                                   class="w-full h-[36px] px-[16px] py-[8px] rounded-[6px] bg-white/[0.08] border text-[14px] leading-[20px] text-ink placeholder:text-[rgba(73,73,73,0.5)] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors {% if form.last_name.errors %}border-[#ff383c]{% else %}border-[rgba(73,73,73,0.25)]{% endif %}">
+                                            {% for error in form.last_name.errors %}
+                                            <p class="text-[8px] leading-[20px] tracking-[-0.16px] text-[#ff383c]">{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Email address -->
+                                    <div class="flex flex-col gap-[8px] w-full">
+                                        <label for="{{ form.email.id_for_label }}" class="flex items-center gap-[6px] text-[12px]">
+                                            <span class="font-medium text-[#222]">Email address</span>
+                                        </label>
+                                        <input type="email"
+                                               name="{{ form.email.html_name }}"
+                                               id="{{ form.email.id_for_label }}"
+                                               value="{{ form.email.value|default_if_none:'' }}"
+                                               placeholder="123456@example.com"
+                                               class="w-full h-[36px] px-[16px] py-[8px] rounded-[6px] bg-white/[0.08] border text-[14px] leading-[20px] text-ink placeholder:text-[rgba(73,73,73,0.5)] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors {% if form.email.errors %}border-[#ff383c]{% else %}border-[rgba(73,73,73,0.25)]{% endif %}">
+                                        {% for error in form.email.errors %}
+                                        <p class="text-[8px] leading-[20px] tracking-[-0.16px] text-[#ff383c]">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+
+                                    <!-- Phone number -->
+                                    <div class="flex flex-col gap-[8px] w-full">
+                                        <label for="{{ form.phone.id_for_label }}" class="flex items-center gap-[6px] text-[12px]">
+                                            <span class="font-medium text-[#222]">Phone number</span>
+                                        </label>
+                                        <div class="flex items-center h-[36px] w-full rounded-[6px] bg-white/[0.08] border pr-[16px] focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary transition-colors {% if form.phone.errors %}border-[#ff383c]{% else %}border-[rgba(73,73,73,0.25)]{% endif %}">
+                                            <!-- Country prefix (visual only) -->
+                                            <div class="flex items-center gap-[8px] h-full p-[8px] bg-white border border-[rgba(73,73,73,0.25)] rounded-l-[6px] shrink-0 select-none">
+                                                <span class="text-[16px] leading-none" aria-hidden="true">🇦🇺</span>
+                                                <span class="material-symbols-outlined text-[rgba(73,73,73,0.6)]" style="font-size: 14px;">expand_more</span>
+                                            </div>
+                                            <input type="text"
+                                                   name="{{ form.phone.html_name }}"
+                                                   id="{{ form.phone.id_for_label }}"
+                                                   value="{{ form.phone.value|default_if_none:'' }}"
+                                                   placeholder="+61 423 234 567"
+                                                   maxlength="255"
+                                                   inputmode="tel"
+                                                   class="flex-1 min-w-0 h-full bg-transparent border-0 pl-[12px] text-[14px] leading-[20px] text-ink placeholder:text-[rgba(73,73,73,0.5)] focus:outline-none">
+                                        </div>
+                                        <p class="text-[8px] leading-[20px] tracking-[-0.16px] text-[#494949]">Must be unique across clients.</p>
+                                        {% for error in form.phone.errors %}
+                                        <p class="text-[8px] leading-[20px] tracking-[-0.16px] text-[#ff383c]">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+
+                                    <!-- Role -->
+                                    <div class="flex flex-col gap-[8px] w-full">
+                                        <label for="{{ form.role.id_for_label }}" class="flex items-center gap-[6px] text-[12px]">
+                                            <span class="font-medium text-[#222]">Role</span>
+                                            <span class="text-[#ff383c] leading-[20px]">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <select name="{{ form.role.html_name }}"
+                                                    id="{{ form.role.id_for_label }}"
+                                                    required
+                                                    class="appearance-none w-full h-[36px] pl-[16px] pr-[36px] rounded-[6px] bg-white border text-[14px] leading-[20px] text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors {% if form.role.errors %}border-[#ff383c]{% else %}border-[rgba(73,73,73,0.25)]{% endif %}">
+                                                <option value="" {% if not form.role.value %}selected{% endif %} disabled>Select role</option>
+                                                {% for value, label in form.fields.role.choices %}
+                                                {% if value %}
+                                                <option value="{{ value }}" {% if form.role.value == value %}selected{% endif %}>{{ label }}</option>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                            <span class="material-symbols-outlined pointer-events-none absolute right-[12px] top-1/2 -translate-y-1/2 text-[rgba(73,73,73,0.6)]" style="font-size: 16px;">expand_more</span>
+                                        </div>
+                                        <p class="text-[8px] leading-[20px] tracking-[-0.16px] text-[#494949]">Administrators have full access. Subcontractors have limited access.</p>
+                                        {% for error in form.role.errors %}
+                                        <p class="text-[8px] leading-[20px] tracking-[-0.16px] text-[#ff383c]">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+
+                                    <!-- Status -->
+                                    <div class="flex flex-col gap-[8px] w-full">
+                                        <label for="{{ form.status.id_for_label }}" class="flex items-center gap-[6px] text-[12px]">
+                                            <span class="font-medium text-[#222]">Status</span>
+                                            <span class="text-[#ff383c] leading-[20px]">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <select name="{{ form.status.html_name }}"
+                                                    id="{{ form.status.id_for_label }}"
+                                                    required
+                                                    class="appearance-none w-full h-[36px] pl-[16px] pr-[36px] rounded-[6px] bg-white border text-[14px] leading-[20px] text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors {% if form.status.errors %}border-[#ff383c]{% else %}border-[rgba(73,73,73,0.25)]{% endif %}">
+                                                {% for value, label in form.fields.status.choices %}
+                                                {% if value %}
+                                                <option value="{{ value }}" {% if form.status.value == value %}selected{% endif %}>{{ label }}</option>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                            <span class="material-symbols-outlined pointer-events-none absolute right-[12px] top-1/2 -translate-y-1/2 text-[rgba(73,73,73,0.6)]" style="font-size: 16px;">expand_more</span>
+                                        </div>
+                                        {% for error in form.status.errors %}
+                                        <p class="text-[8px] leading-[20px] tracking-[-0.16px] text-[#ff383c]">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="flex items-center justify-between w-full">
+                                <a href="{% url 'ops:clients' %}"
+                                   class="inline-flex items-center px-[14px] py-[8px] rounded-[8px] bg-white border-[0.8px] border-[rgba(173,173,173,0.5)] text-[12px] font-medium text-[#222] hover:bg-surface-container transition-colors">
+                                    Cancel
+                                </a>
+                                <button type="submit"
+                                        class="inline-flex items-center gap-[8px] px-[14px] py-[8px] rounded-[8px] bg-primary hover:bg-primary-hover text-on-primary text-[12px] font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30">
+                                    Save Client
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- ============ About Clients Card ============ -->
+                    <aside class="w-full xl:flex-1 xl:min-w-0 bg-white border-[0.6px] border-[rgba(91,90,119,0.2)] rounded-[16px] p-[24px] flex flex-col gap-[24px]">
+                        <div class="flex flex-col gap-[16px]">
+                            <p class="text-[16px] leading-[20px] font-medium text-[#202224]">About Clients</p>
+                            <p class="text-[12px] leading-[20px] tracking-[-0.24px] text-[#494949]">
+                                Clients are the businesses or individuals who receive cleaning services. You can add their
+                                basic contact details now and assign sites later.
+                            </p>
+                        </div>
+
+                        <div class="h-px w-full bg-[rgba(91,90,119,0.2)]"></div>
+
+                        <div class="flex flex-col gap-[17px]">
+                            <div class="flex items-center gap-[16px]">
+                                <div class="w-[40px] h-[40px] shrink-0 rounded-full bg-[#f5eee6] flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-primary" style="font-size: 19px;">add_a_photo</span>
+                                </div>
+                                <div class="flex flex-col gap-[8px] min-w-0">
+                                    <p class="text-[14px] font-medium text-black">Add a photo</p>
+                                    <p class="text-[12px] leading-[20px] tracking-[-0.24px] text-[#494949]">Helps identify the client quickly</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-[16px]">
+                                <div class="w-[40px] h-[40px] shrink-0 rounded-full bg-[#f5eee6] flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-primary" style="font-size: 19px;">contact_phone</span>
+                                </div>
+                                <div class="flex flex-col gap-[8px] min-w-0">
+                                    <p class="text-[14px] font-medium text-black">Contact details</p>
+                                    <p class="text-[12px] leading-[20px] tracking-[-0.24px] text-[#494949]">Phone and email (optional)</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-[16px]">
+                                <div class="w-[40px] h-[40px] shrink-0 rounded-full bg-[#f5eee6] flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-primary" style="font-size: 19px;">home</span>
+                                </div>
+                                <div class="flex flex-col gap-[8px] min-w-0">
+                                    <p class="text-[14px] font-medium text-black">Sites can be added later</p>
+                                    <p class="text-[12px] leading-[20px] tracking-[-0.24px] text-[#494949]">Assign one or more sites after creating the client</p>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('field-photo').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        const previewImg = document.getElementById('photo-preview-img');
+        const placeholderIcon = document.getElementById('photo-placeholder-icon');
+        const filenameLabel = document.getElementById('photo-filename');
+
+        if (!file) {
+            previewImg.classList.add('hidden');
+            previewImg.src = '';
+            placeholderIcon.classList.remove('hidden');
+            filenameLabel.textContent = 'Upload client photo';
+            return;
+        }
+
+        filenameLabel.textContent = file.name;
+        placeholderIcon.classList.add('hidden');
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            previewImg.src = e.target.result;
+            previewImg.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    });
+</script>
+{% endblock %}

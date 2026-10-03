@@ -24,6 +24,12 @@
                     <span>Dashboard</span>
                 </a>
 
+                <a href="#"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    <span>Calendar</span>
+                </a>
+
                 {% if user.role == 'ADMINISTRATOR' %}
                 <a href="{% url 'ops:clients' %}"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium bg-primary/10 text-primary">
@@ -42,6 +48,12 @@
 
                 <a href="#"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">engineering</span>
+                    <span>Subcontractors</span>
+                </a>
+
+                <a href="#"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
                     <span class="material-symbols-outlined">event</span>
                     <span>Schedules</span>
                 </a>
@@ -52,6 +64,16 @@
                     <span>Invoices</span>
                 </a>
 
+                <a href="#"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">bar_chart</span>
+                    <span>Reports</span>
+                </a>
+            </div>
+
+            <div class="my-3 border-t border-dashed border-surface-container-high"></div>
+
+            <div class="space-y-1">
                 {% if user.role == 'OWNER' %}
                 <a href="#"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
@@ -59,76 +81,102 @@
                     <span>Users</span>
                 </a>
                 {% endif %}
+
+                <a href="#"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span>Settings</span>
+                </a>
+
+                <a href="#"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">help</span>
+                    <span>Help</span>
+                </a>
+
+                <a href="{% url 'ops:logout' %}"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span>Logout</span>
+                </a>
             </div>
         </nav>
-
-        <!-- Footer -->
-        <div class="px-4 py-3 border-t border-surface-container-high">
-            <p class="text-xs text-ink-light text-center">© 2026 SubSync</p>
-        </div>
     </aside>
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col overflow-hidden">
         <!-- Top Bar -->
         <header class="sticky top-0 z-30 bg-white border-b border-surface-container-high">
-            <div class="flex items-center justify-between px-4 lg:px-6 py-3">
-                <div class="flex-1 max-w-md">
-                    <h1 class="text-lg font-semibold text-ink">Clients</h1>
-                </div>
+            <div class="flex items-center justify-end px-4 lg:px-6 py-3 gap-3">
+                <button class="p-2 rounded-xl border border-surface-container-high hover:bg-surface-container transition-colors" title="Toggle theme">
+                    <span class="material-symbols-outlined text-ink-light" style="font-size: 20px;">light_mode</span>
+                </button>
 
-                <div class="flex items-center gap-3">
-                    <button class="relative p-2 rounded-xl hover:bg-surface-container transition-colors">
-                        <span class="material-symbols-outlined text-ink-light">notifications</span>
-                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
-                    </button>
+                <button class="relative p-2 rounded-xl border border-surface-container-high hover:bg-surface-container transition-colors">
+                    <span class="material-symbols-outlined text-ink-light" style="font-size: 20px;">notifications</span>
+                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+                </button>
 
-                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-surface-container transition-colors">
-                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                            <span class="material-symbols-outlined text-primary" style="font-size: 18px;">person</span>
-                        </div>
-                        <span class="hidden md:block text-sm font-medium text-ink">{{ user.username }}</span>
-                        <span class="hidden md:block text-xs text-ink-light">({{ user.role }})</span>
+                <div class="flex items-center gap-2 pl-1 pr-1 py-1 rounded-xl hover:bg-surface-container transition-colors cursor-default">
+                    <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-primary" style="font-size: 18px;">person</span>
                     </div>
-
-                    <a href="{% url 'ops:logout' %}"
-                       class="p-2 rounded-xl hover:bg-surface-container transition-colors"
-                       title="Logout">
-                        <span class="material-symbols-outlined text-ink-light">logout</span>
-                    </a>
+                    <div class="hidden md:flex flex-col leading-tight">
+                        <span class="text-sm font-semibold text-ink">{{ user.username }}</span>
+                        <span class="text-xs text-ink-light">{{ user.role|title }}</span>
+                    </div>
+                    <span class="material-symbols-outlined text-ink-light hidden md:block" style="font-size: 18px;">expand_more</span>
                 </div>
             </div>
         </header>
 
         <!-- Page Content -->
         <main class="flex-1 overflow-y-auto">
-            <div class="container mx-auto px-4 py-8">
+            <div class="w-full px-4 lg:px-6 py-6">
                 <!-- Page Header -->
-                <div class="flex items-start justify-between mb-8">
-                    <div>
-                        <h1 class="text-3xl font-bold text-ink">Clients</h1>
-                        <p class="text-ink-light mt-2">Manage all your clients in one place.</p>
-                    </div>
-                    <button type="button" onclick="openClientModal()"
-                            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-on-primary text-sm font-medium transition-colors">
-                        <span class="material-symbols-outlined" style="font-size: 18px;">add</span>
-                        Add Client
-                    </button>
+                <div class="mb-5">
+                    <h1 class="text-2xl font-bold text-ink">Clients</h1>
+                    <p class="text-ink-light text-sm mt-1">Manage all your clients in one place.</p>
                 </div>
 
-                <!-- Search -->
-                <form method="get" class="mb-6">
-                    <div class="relative max-w-md">
+                <!-- Add Client -->
+                <div class="flex justify-end mb-4">
+                    <a href="{% url 'ops:client_create' %}"
+                       class="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-on-primary text-sm font-medium transition-colors">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                        Add Client
+                    </a>
+                </div>
+
+                <!-- Search / Filter / Export -->
+                <form method="get" class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
+                    <div class="relative w-full sm:max-w-sm">
                         <div class="absolute left-3 top-1/2 -translate-y-1/2 text-ink-light">
-                            <span class="material-symbols-outlined">search</span>
+                            <span class="material-symbols-outlined" style="font-size: 18px;">search</span>
                         </div>
                         <input
                             type="text"
                             name="q"
                             value="{{ query }}"
                             placeholder="Search by name, email or phone..."
-                            class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm"
+                            class="w-full h-10 pl-9 pr-4 rounded-xl bg-white border border-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm"
                         >
+                    </div>
+
+                    <div class="flex items-center gap-2 shrink-0">
+                        <!-- Visual-only: no status field exists on Client yet, so this doesn't filter -->
+                        <button type="button" disabled title="No client status field exists yet"
+                                class="flex items-center gap-1.5 h-10 px-3.5 rounded-xl bg-white border border-surface-container-high text-sm text-ink-light cursor-not-allowed">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">filter_list</span>
+                            All Clients
+                            <span class="material-symbols-outlined" style="font-size: 16px;">expand_more</span>
+                        </button>
+                        <!-- Visual-only: no export feature exists yet -->
+                        <button type="button" disabled title="Export isn't implemented yet"
+                                class="flex items-center gap-1.5 h-10 px-3.5 rounded-xl bg-white border border-surface-container-high text-sm text-ink-light cursor-not-allowed">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">ios_share</span>
+                            Export
+                        </button>
                     </div>
                 </form>
 
@@ -138,48 +186,59 @@
                         <table class="w-full text-sm">
                             <thead>
                                 <tr class="bg-primary text-on-primary text-left">
-                                    <th class="px-6 py-3.5 font-semibold">Client Name</th>
-                                    <th class="px-6 py-3.5 font-semibold">Phone</th>
-                                    <th class="px-6 py-3.5 font-semibold">Email</th>
-                                    <th class="px-6 py-3.5 font-semibold">Sites</th>
-                                    <th class="px-6 py-3.5 font-semibold text-right">Actions</th>
+                                    <th class="pl-6 pr-2 py-3 w-10">
+                                        <input type="checkbox" id="select-all" class="w-4 h-4 rounded accent-white">
+                                    </th>
+                                    <th class="px-3 py-3 font-semibold text-xs tracking-wide uppercase">Client Name</th>
+                                    <th class="px-3 py-3 font-semibold text-xs tracking-wide uppercase">Phone</th>
+                                    <th class="px-3 py-3 font-semibold text-xs tracking-wide uppercase">Email</th>
+                                    <th class="px-3 py-3 font-semibold text-xs tracking-wide uppercase">Sites</th>
+                                    <th class="px-3 py-3 font-semibold text-xs tracking-wide uppercase text-right pr-6">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for client in page_obj %}
                                 <tr class="border-b border-surface-container last:border-0 hover:bg-surface/60">
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold
+                                    <td class="pl-6 pr-2 py-3">
+                                        <input type="checkbox" class="row-checkbox w-4 h-4 rounded accent-primary">
+                                    </td>
+                                    <td class="px-3 py-3">
+                                        <div class="flex items-center gap-2.5">
+                                            {% if client.photo %}
+                                            <img src="{{ client.photo.url }}" alt=""
+                                                 class="w-8 h-8 rounded-full object-cover shrink-0">
+                                            {% else %}
+                                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold shrink-0
                                                 {% cycle 'bg-primary/10 text-primary' 'bg-success/10 text-success' 'bg-warning/10 text-warning' 'bg-error/10 text-error' as avatar_color %}">
-                                                {{ client.first_name|first|upper }}{{ client.last_name|first|upper }}
+                                                {{ client.first_name|default:""|first|upper }}{{ client.last_name|default:""|first|upper }}
                                             </div>
+                                            {% endif %}
                                             <span class="font-medium text-ink">{{ client.first_name }} {{ client.last_name }}</span>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 text-ink-light">{{ client.phone|default:"—" }}</td>
-                                    <td class="px-6 py-4 text-ink-light">{{ client.email|default:"—" }}</td>
-                                    <td class="px-6 py-4 text-ink-light">{{ client.sites.count }}</td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center justify-end gap-2">
+                                    <td class="px-3 py-3 text-ink-light">{{ client.phone|default:"—" }}</td>
+                                    <td class="px-3 py-3 text-ink-light">{{ client.email|default:"—" }}</td>
+                                    <td class="px-3 py-3 text-ink-light">{{ client.sites.count }}</td>
+                                    <td class="px-3 py-3 pr-6">
+                                        <div class="flex items-center justify-end gap-1.5">
                                             <button type="button"
                                                     title="View"
                                                     onclick="openViewModal('{{ client.first_name|escapejs }} {{ client.last_name|default:''|escapejs }}', '{{ client.phone|default:''|escapejs }}', '{{ client.email|default:''|escapejs }}', {{ client.sites.all|length }})"
-                                                    class="p-2 rounded-lg border border-surface-container-high hover:bg-surface-container transition-colors">
-                                                <span class="material-symbols-outlined text-ink-light" style="font-size: 18px;">visibility</span>
+                                                    class="p-1.5 rounded-lg border border-surface-container-high hover:bg-surface-container transition-colors">
+                                            <span class="material-symbols-outlined text-ink-light" style="font-size: 16px;">visibility</span>
                                             </button>
                                             <button type="button"
                                                     title="Edit"
-                                                    onclick="openClientModal('{{ client.id }}', '{{ client.first_name|escapejs }}', '{{ client.last_name|default:''|escapejs }}', '{{ client.phone|default:''|escapejs }}', '{{ client.email|default:''|escapejs }}')"
-                                                    class="p-2 rounded-lg border border-surface-container-high hover:bg-surface-container transition-colors">
-                                                <span class="material-symbols-outlined text-primary" style="font-size: 18px;">edit</span>
+                                                    onclick="openClientModal('{{ client.id }}', '{{ client.first_name|escapejs }}', '{{ client.last_name|default:''|escapejs }}', '{{ client.phone|default:''|escapejs }}', '{{ client.email|default:''|escapejs }}', '{{ client.role|escapejs }}', '{{ client.status|escapejs }}')"
+                                                    class="p-1.5 rounded-lg border border-surface-container-high hover:bg-surface-container transition-colors">
+                                                <span class="material-symbols-outlined text-primary" style="font-size: 16px;">edit</span>
                                             </button>
                                             <form method="post" action="{% url 'ops:client_delete' client.id %}"
                                                   onsubmit="return confirm('Remove {{ client.first_name|escapejs }} {{ client.last_name|default:''|escapejs }}? This cannot be undone.');">
                                                 {% csrf_token %}
                                                 <button type="submit" title="Delete"
-                                                        class="p-2 rounded-lg border border-surface-container-high hover:bg-error/10 transition-colors">
-                                                    <span class="material-symbols-outlined text-error" style="font-size: 18px;">delete</span>
+                                                        class="p-1.5 rounded-lg border border-surface-container-high hover:bg-error/10 transition-colors">
+                                                    <span class="material-symbols-outlined text-error" style="font-size: 16px;">delete</span>
                                                 </button>
                                             </form>
                                         </div>
@@ -187,7 +246,7 @@
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="5" class="px-6 py-12 text-center text-ink-light">
+                                    <td colspan="6" class="px-6 py-12 text-center text-ink-light">
                                         {% if query %}No clients match "{{ query }}".{% else %}No clients yet. Add your first client to get started.{% endif %}
                                     </td>
                                 </tr>
@@ -198,34 +257,34 @@
 
                     <!-- Pagination -->
                     {% if page_obj.paginator.num_pages > 1 %}
-                    <div class="flex items-center justify-between px-6 py-4 border-t border-surface-container">
-                        <p class="text-sm text-ink-light">
+                    <div class="flex items-center justify-between px-6 py-3.5 border-t border-surface-container">
+                        <p class="text-xs text-ink-light">
                             Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ total_clients }} clients
                         </p>
                         <div class="flex items-center gap-1.5">
                             {% if page_obj.has_previous %}
                             <a href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.previous_page_number }}"
-                               class="w-8 h-8 flex items-center justify-center rounded-lg border border-surface-container-high hover:bg-surface-container text-ink-light">
-                                <span class="material-symbols-outlined" style="font-size: 16px;">chevron_left</span>
+                               class="w-7 h-7 flex items-center justify-center rounded-lg border border-surface-container-high hover:bg-surface-container text-ink-light">
+                                <span class="material-symbols-outlined" style="font-size: 15px;">chevron_left</span>
                             </a>
                             {% endif %}
                             {% for num in page_obj.paginator.page_range %}
                             <a href="?{% if query %}q={{ query }}&{% endif %}page={{ num }}"
-                               class="w-8 h-8 flex items-center justify-center rounded-lg text-sm {% if num == page_obj.number %}bg-primary text-on-primary{% else %}border border-surface-container-high hover:bg-surface-container text-ink-light{% endif %}">
+                               class="w-7 h-7 flex items-center justify-center rounded-lg text-xs {% if num == page_obj.number %}bg-primary text-on-primary{% else %}border border-surface-container-high hover:bg-surface-container text-ink-light{% endif %}">
                                 {{ num }}
                             </a>
                             {% endfor %}
                             {% if page_obj.has_next %}
                             <a href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.next_page_number }}"
-                               class="w-8 h-8 flex items-center justify-center rounded-lg border border-surface-container-high hover:bg-surface-container text-ink-light">
-                                <span class="material-symbols-outlined" style="font-size: 16px;">chevron_right</span>
+                               class="w-7 h-7 flex items-center justify-center rounded-lg border border-surface-container-high hover:bg-surface-container text-ink-light">
+                                <span class="material-symbols-outlined" style="font-size: 15px;">chevron_right</span>
                             </a>
                             {% endif %}
                         </div>
                     </div>
                     {% elif total_clients %}
-                    <div class="px-6 py-4 border-t border-surface-container">
-                        <p class="text-sm text-ink-light">Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ total_clients }} clients</p>
+                    <div class="px-6 py-3.5 border-t border-surface-container">
+                        <p class="text-xs text-ink-light">Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ total_clients }} clients</p>
                     </div>
                     {% endif %}
                 </div>
@@ -234,16 +293,16 @@
     </div>
 </div>
 
-<!-- Add / Edit Client Modal -->
+<!-- Edit Client Modal -->
 <div id="client-modal" class="hidden fixed inset-0 z-40 items-center justify-center bg-ink/40 px-4" onclick="if (event.target === this) closeClientModal();">
     <div class="bg-white rounded-2xl w-full max-w-md p-6">
         <div class="flex items-center justify-between mb-5">
-            <h2 id="client-modal-title" class="text-lg font-semibold text-ink">Add Client</h2>
+            <h2 class="text-lg font-semibold text-ink">Edit Client</h2>
             <button type="button" onclick="closeClientModal()" class="p-1.5 rounded-lg hover:bg-surface-container">
                 <span class="material-symbols-outlined text-ink-light">close</span>
             </button>
         </div>
-        <form id="client-form" method="post" action="{% url 'ops:client_create' %}">
+        <form id="client-form" method="post">
             {% csrf_token %}
             <div class="space-y-4">
                 <div>
@@ -267,6 +326,10 @@
                            class="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
                 </div>
             </div>
+            <!-- Role/Status aren't editable from this quick modal; these hidden fields
+                 resubmit the client's existing values so a quick edit here doesn't wipe them. -->
+            <input type="hidden" name="role" id="field-role">
+            <input type="hidden" name="status" id="field-status">
             <div class="flex items-center justify-end gap-3 mt-6">
                 <button type="button" onclick="closeClientModal()"
                         class="px-4 py-2.5 rounded-xl border border-surface-container-high text-sm font-medium text-ink hover:bg-surface-container transition-colors">
@@ -333,22 +396,16 @@
         el.classList.add('hidden');
     }
 
-    function openClientModal(id, firstName, lastName, phone, email) {
+    function openClientModal(id, firstName, lastName, phone, email, role, status) {
         const form = document.getElementById('client-form');
-        const title = document.getElementById('client-modal-title');
-
-        if (id) {
-            title.textContent = 'Edit Client';
-            form.action = '/clients/' + id + '/edit/';
-        } else {
-            title.textContent = 'Add Client';
-            form.action = '{% url "ops:client_create" %}';
-        }
+        form.action = '/clients/' + id + '/edit/';
 
         document.getElementById('field-first-name').value = firstName || '';
         document.getElementById('field-last-name').value = lastName || '';
         document.getElementById('field-phone').value = phone || '';
         document.getElementById('field-email').value = email || '';
+        document.getElementById('field-role').value = role || '';
+        document.getElementById('field-status').value = status || '';
 
         showModal(document.getElementById('client-modal'));
     }
@@ -375,5 +432,14 @@
             closeViewModal();
         }
     });
+
+    const selectAllCheckbox = document.getElementById('select-all');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function () {
+            document.querySelectorAll('.row-checkbox').forEach(function (checkbox) {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        });
+    }
 </script>
 {% endblock %}

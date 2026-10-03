@@ -223,6 +223,10 @@ STATICFILES_DIRS = [
     BASE_DIR / 'ops' / 'static',
 ]
 
+# User-uploaded files (client photos, site images, etc.)
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Authentication settings
 LOGIN_URL = 'ops:login'
 LOGIN_REDIRECT_URL = 'ops:dashboard'
