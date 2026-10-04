@@ -48,7 +48,14 @@ INSTALLED_APPS = [
     "corsheaders",
     'authuser',
     'client',
+<<<<<<< HEAD
     'ops',
+=======
+    'schedule',
+    'work',
+    'invoice',
+    'dashboard',
+>>>>>>> upstream/main
 ]
 
 MIDDLEWARE = [
