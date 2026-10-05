@@ -864,6 +864,31 @@ cd SubSynce_Backend
 ### Step 2: Create Virtual Environment
 
 **Windows (PowerShell):**
+# SubSync Backend
+
+SubSync is a Django REST API for managing cleaning businesses.
+
+The system manages:
+
+- Users and roles
+- Clients and cleaning sites
+- Contractor assignments
+- Cleaning schedules
+- Completed cleaning work
+- Contractor invoices
+- Client invoices
+- Revenue, expenditure, profit, and dashboards
+
+## Requirements
+
+- Python 3.12 or later
+- Windows PowerShell
+- Git
+
+## Setup
+
+Open PowerShell in the backend directory:
+
 ```powershell
 python -m venv venv
 .\venv\Scripts\Activate.ps1
@@ -914,370 +939,87 @@ DB_ENGINE=django.db.backends.sqlite3
 DB_NAME=db.sqlite3
 ```
 
-**Why Each Variable:**
+Do not use development secrets in production. Keep real secrets out of source control.
 
-- **`DEBUG=True`**: Shows detailed error messages (ONLY for development)
-- **`SECRET_KEY`**: Master password for Django (NEVER share in production)
-- **`JWT_ACCESS_TOKEN_LIFETIME_HRS`**: How long access tokens last (4 hours)
-- **`JWT_REFRESH_TOKEN_LIFETIME_HRS`**: How long refresh tokens last (48 hours)
-- **`JWT_KEY`**: Secret key for signing JWT tokens
-- **`PASSWORD_MIN_LENGTH`**: Minimum password length (8 characters)
-- **`THROTTLE_RATES_IN_DAYS`**: API rate limiting (1000000 requests per day = unlimited)
-- **`DB_ENGINE`**: Database type (SQLite for development)
-- **`DB_NAME`**: Database file name
+## Database
 
-### Step 5: Run Migrations
+After activating the virtual environment, run:
 
-```bash
+```powershell
+python manage.py check
+python manage.py makemigrations
 python manage.py migrate
 ```
 
-**What this does:**
-- Creates `db.sqlite3` file (the database)
-- Creates tables for all models (User, Client, Site, etc.)
-- Applies all migrations
+Create a Django admin user when needed:
 
-**Expected output:**
-```
-Operations to perform:
-  Apply all migrations: admin, auth, authuser, client, contenttypes, sessions, token_blacklist
-Running migrations:
-  Applying authuser.0001_initial... OK
-  Applying authuser.0002_alter_user_role... OK
-  ...
+```powershell
+python manage.py createsuperuser
 ```
 
-### Step 6: Create Test Users
+## Run the API
 
-Open Django shell:
-```bash
-python manage.py shell
-```
-
-In the Python shell, type:
-```python
-from authuser.models import User
-
-# Create owner user
-user = User.objects.create_user(
-    username='testowner',
-    email='owner@test.com',
-    password='Test@12345',
-    role='OWNER'
-)
-print(f"Created: {user.username}, Role: {user.role}")
-
-# Create admin user
-admin = User.objects.create_user(
-    username='admin1',
-    email='admin@test.com',
-    password='Test@12345',
-    role='ADMINISTRATOR'
-)
-print(f"Created: {admin.username}, Role: {admin.role}")
-
-# Create contractor user
-contractor = User.objects.create_user(
-    username='contractor1',
-    email='contractor@test.com',
-    password='Test@12345',
-    role='CONTRACTOR'
-)
-print(f"Created: {contractor.username}, Role: {contractor.role}")
-
-# Exit shell
-exit()
-```
-
-**Why These Users:**
-- **testowner**: Full access to all features
-- **admin1**: Management access (can't create users)
-- **contractor1**: Limited access (own data only)
-
-### Step 7: Start the Server
-
-```bash
+```powershell
 python manage.py runserver
 ```
 
-**Expected output:**
+The API is available at `http://127.0.0.1:8000/`.
+
+## API Documentation
+
+- Swagger UI: `http://127.0.0.1:8000/api/swagger/`
+- OpenAPI schema: `http://127.0.0.1:8000/api/schema/`
+- ReDoc: `http://127.0.0.1:8000/api/redoc/`
+
+## Main API Groups
+
+- `/api/v1/admin/`
+- `/api/v1/owner/`
+- `/api/v1/user/`
+
+Most endpoints require a JWT access token:
+
+```text
+Authorization: Bearer <access-token>
 ```
-Watching for file changes with StatReloader
-Performing system checks...
 
-System check identified no issues (0 silenced).
-September 03, 2026 - 12:00:00
-Django version 5.2.9, using settings 'core.settings'
-Starting development server at http://127.0.0.1:8000/
-Quit the server with CTRL-BREAK.
+## Important Endpoints
+
+### Contractor
+
+- `/api/v1/user/schedule/` - View assigned schedules
+- `/api/v1/user/clock-in/` - Start scheduled work
+- `/api/v1/user/clock-out/<id>/` - Complete work
+- `/api/v1/user/invoices/` - Submit and view contractor invoices
+- `/api/v1/user/dashboard/` - View the contractor dashboard
+
+### Administrator
+
+- `/api/v1/admin/client/` - Manage clients
+- `/api/v1/admin/site/` - Manage sites
+- `/api/v1/admin/schedule/` - Manage schedules
+- `/api/v1/admin/work/` - Review completed work
+- `/api/v1/admin/invoices/` - Review contractor invoices
+- `/api/v1/admin/client-invoice/` - Manage client invoices
+- `/api/v1/admin/dashboard/` - View the administrator dashboard
+
+Dashboard date filters use:
+
+```text
+?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD
 ```
 
-### Step 8: Test the Login
+## User Roles
 
-1. Open browser to: `http://127.0.0.1:8000/`
-2. You should see the **Login Page** with orange styling
-3. Enter credentials:
-   - Username: `testowner`
-   - Password: `Test@12345`
-4. Click "Sign In"
-5. You should be redirected to the **Dashboard**
-6. Try the other users too (admin1, contractor1)
-7. Click "Logout" button
-8. You should be redirected back to login
+The application supports these roles:
 
-### Step 9: Test Protected Routes
+- `OWNER`
+- `ADMINISTRATOR`
+- `CONTRACTOR`
 
-1. Logout
-2. Try to access: `http://127.0.0.1:8000/dashboard/`
-3. You should be **automatically redirected** to login page
-4. Login again
-5. Now you can access the dashboard
+Role permissions are enforced by the API. An owner can create administrators or contractors. An administrator can create contractors. Contractors cannot create accounts.
 
----
-
-## 🧪 Testing the Login System
-
-### Test Cases
-
-#### ✅ Test 1: Successful Login
-1. Visit `http://127.0.0.1:8000/`
-2. Enter valid credentials (testowner / Test@12345)
-3. Click "Sign In"
-4. **Expected:** Redirect to dashboard, see "Welcome back, testowner!" message
-
-#### ✅ Test 2: Failed Login
-1. Visit `http://127.0.0.1:8000/`
-2. Enter wrong credentials (testowner / wrongpassword)
-3. Click "Sign In"
-4. **Expected:** Stay on login page, see "Invalid username or password." error message
-
-#### ✅ Test 3: Already Logged In
-1. Login successfully
-2. Visit `http://127.0.0.1:8000/` again
-3. **Expected:** Automatically redirect to dashboard
-
-#### ✅ Test 4: Protected Route
-1. Logout
-2. Try to visit `http://127.0.0.1:8000/dashboard/`
-3. **Expected:** Redirect to login page
-
-#### ✅ Test 5: Logout
-1. Login successfully
-2. Click "Logout" button
-3. **Expected:** Redirect to login page, see "You have been logged out successfully." message
-
-#### ✅ Test 6: Role Display
-1. Login as testowner
-2. **Expected:** Dashboard shows "Role: OWNER"
-3. Logout and login as admin1
-4. **Expected:** Dashboard shows "Role: ADMINISTRATOR"
-
----
-
-## 📊 Change Log
-
-### Phase 1: Login & Authentication System (September 2026)
-
-#### Files Created (14 new files)
-
-| File | Purpose | Lines of Code |
-|---|---|---|
-| `ops/__init__.py` | Makes ops a Python package | 0 |
-| `ops/apps.py` | App configuration | 5 |
-| `ops/admin.py` | Django admin (empty) | 2 |
-| `ops/models.py` | Models (empty) | 2 |
-| `ops/tests.py` | Tests (empty) | 2 |
-| `ops/views.py` | Login, logout, dashboard views | 65 |
-| `ops/urls.py` | URL routes | 12 |
-| `ops/migrations/__init__.py` | Migrations folder | 0 |
-| `ops/templates/base.html` | Base template (shared layout) | 75 |
-| `ops/templates/ops/login.html` | Login page | 95 |
-| `ops/templates/ops/dashboard.html` | Dashboard page | 110 |
-| `ops/static/css/app.css` | Custom CSS | 30 |
-| `requirements_py311.txt` | Python 3.11 compatible requirements | 45 |
-| `.env` | Environment variables | 10 |
-
-**Total New Code:** ~438 lines
-
-#### Files Modified (2 files)
-
-| File | Changes | Lines Added |
-|---|---|---|
-| `core/settings.py` | Added ops app, templates, static, auth settings | +25 |
-| `core/urls.py` | Added web frontend URLs | +10 |
-
-**Total Modified Code:** ~35 lines
-
-#### Features Implemented
-
-- ✅ Login page with session-based authentication
-- ✅ Dashboard with stats cards
-- ✅ Logout functionality
-- ✅ `@login_required` protection
-- ✅ CSRF protection on forms
-- ✅ Success/error messages
-- ✅ Role-based user display
-- ✅ Tailwind CSS with brand colors
-- ✅ Material Symbols icons
-- ✅ Pretendard font
-- ✅ Responsive design
-
-#### Technical Decisions
-
-1. **Session Auth vs JWT**: Chose session-based auth for web (simpler, more secure)
-2. **Hybrid Approach**: Kept existing API + added template layer
-3. **Tailwind CDN**: Used Play CDN for development (fast iteration)
-4. **Mock Data**: Used hardcoded stats for dashboard (will connect to real data later)
-
----
-
-## 📚 References
-
-### Design Documents
-
-- **design.md**: Frontend design specifications (Material 3, Tailwind, colors)
-- **techstack.md**: Technology stack decisions (Django, sessions, templates)
-- **PRD.md**: Product requirements (features, user roles, scope)
-
-### Architecture
-
-- **Hybrid Approach (Option C)**: Keep API + add templates
-- **Single App Structure**: `ops` app for all web views
-- **Shared Database**: Both apps use same SQLite database
-- **AUTH_USER_MODEL**: `authuser.User` for both API and web
-
-### URLs
-
-| URL | Purpose | Auth Required |
-|---|---|---|
-| `/` | Login page | No |
-| `/dashboard/` | Dashboard | Yes |
-| `/logout/` | Logout | Yes |
-| `/api/v1/user/login/` | API login | No |
-| `/api/v1/user/user-info/` | API user info | Yes (JWT) |
-| `/admin/` | Django admin | Yes |
-| `/api/swagger/` | API documentation | No |
-
----
-
-## 🚀 Next Phases
-
-### Phase 2: Client Management (Planned)
-- [ ] Client list page (`/clients/`)
-- [ ] Create client form
-- [ ] Edit client form
-- [ ] Delete client confirmation
-- [ ] Connect to `client.Client` model
-
-### Phase 3: Site Management (Planned)
-- [ ] Site list page (`/sites/`)
-- [ ] Create site form
-- [ ] Edit site form
-- [ ] Connect to `client.Site` model
-
-### Phase 4: Schedule Management (Planned)
-- [ ] Schedule list page (`/schedules/`)
-- [ ] Create schedule form
-- [ ] Calendar view
-- [ ] Schedule filtering
-
-### Phase 5: Invoice Management (Planned)
-- [ ] Invoice list page (`/invoices/`)
-- [ ] Invoice builder (line items, tax, totals)
-- [ ] Invoice verification
-- [ ] PDF export
-
-### Phase 6: Reports (Planned)
-- [ ] Profitability report
-- [ ] Charts and graphs
-- [ ] Export functionality
-
-### Phase 7: Polish (Planned)
-- [ ] Dark mode toggle
-- [ ] Search functionality
-- [ ] Notifications
-- [ ] User profile page
-- [ ] Tests for all views
-
----
-
-## 🤝 Team Collaboration
-
-### For Backend Developers
-
-**What You Need to Know:**
-- The `ops` app is for web templates only
-- Don't modify `authuser` or `client` apps (they're for API)
-- Both apps share the same database
-- Use `authuser.User` model for all user operations
-
-**How to Add New Web Pages:**
-1. Create view in `ops/views.py`
-2. Create template in `ops/templates/ops/`
-3. Add URL route in `ops/urls.py`
-4. Test with `python manage.py runserver`
-
-### For Frontend Designers
-
-**What You Can Edit:**
-- `ops/templates/ops/login.html` - Login page design
-- `ops/templates/ops/dashboard.html` - Dashboard design
-- `ops/templates/base.html` - Base layout
-- `ops/static/css/app.css` - Custom styles
-
-**What NOT to Change:**
-- Don't remove `{% csrf_token %}` from forms
-- Don't change `name="username"` or `name="password"` on inputs
-- Don't change `method="post"` or `action="{% url 'ops:login' %}"`
-- Don't remove `{% extends 'base.html' %}`
-
-### For DevOps
-
-**Deployment Checklist:**
-- [ ] Set `DEBUG=False` in `.env`
-- [ ] Change `SECRET_KEY` to a strong random value
-- [ ] Switch to PostgreSQL (update `DB_ENGINE` and `DB_NAME`)
-- [ ] Run `python manage.py collectstatic`
-- [ ] Use Gunicorn instead of `runserver`
-- [ ] Set up WhiteNoise for static files
-- [ ] Configure `ALLOWED_HOSTS`
-
----
-
-##  Troubleshooting
-
-### "ModuleNotFoundError: No module named 'decouple'"
-**Fix:** Run `pip install -r requirements.txt` in activated virtual environment
-
-### "Template does not exist"
-**Fix:** Check `TEMPLATES` setting in `core/settings.py` has `'DIRS': [BASE_DIR / 'ops' / 'templates']`
-
-### "Reverse for 'dashboard' not found"
-**Fix:** Check `app_name = 'ops'` in `ops/urls.py` and use `{% url 'ops:dashboard' %}`
-
-### "User not logging in"
-**Fix:** 
-- Check username/password in database
-- Check `AUTH_USER_MODEL = 'authuser.User'` in settings
-- Check browser console for errors
-
-### "Static files not loading"
-**Fix:**
-- Check `STATICFILES_DIRS` in settings
-- Check `{% load static %}` at top of template
-- Check internet connection (Tailwind CDN)
-
-### "CSS not showing (bare HTML)"
-**Fix:**
-- Don't use VS Code Live Preview
-- Use `python manage.py runserver` and open `http://127.0.0.1:8000/`
-- Check internet connection (Tailwind needs CDN)
-
----
-
-## 📝 Quick Reference
-
-### Common Django Commands
+## Common Commands
 
 ```bash
 # Run server
