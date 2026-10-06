@@ -163,6 +163,10 @@ input[type="checkbox"] {
 .pill-rejected, .pill-overdue, .pill-flagged { background: rgb(var(--c-error) / 0.09); color: rgb(var(--c-error)); }
 .pill-cancelled, .pill-issued { background: rgb(var(--c-surface-high)); color: rgb(var(--c-ink-light)); }
 
+/* Calendar chips: no dot, so the site name gets the room */
+.pill.chip { display: flex; min-width: 0; }
+.pill.chip::before { display: none; }
+
 @media (prefers-reduced-motion: reduce) {
     * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }

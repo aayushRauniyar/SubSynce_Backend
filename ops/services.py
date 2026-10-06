@@ -6,6 +6,7 @@ screens and the API agree. Nothing here writes to the database.
 from datetime import date, timedelta
 from decimal import Decimal
 
+from django.db import models
 from django.db.models import Sum
 
 from authuser.model.user import User
@@ -224,3 +225,70 @@ def next_invoice_number(today=None):
         if tail.isdigit():
             highest = max(highest, int(tail))
     return f"{prefix}{highest + 1:03d}"
+
+
+# --- Financial reporting (brief 3.9) -----------------------------------------
+
+def site_profitability(start=None, end=None):
+    """Per-site revenue, cost and profit.
+
+    Revenue and cost use the same rule as the backend's profit report:
+    revenue = PAID client invoices, cost = APPROVED contractor invoices,
+    filtered by invoice date. "Work value" is completed jobs x site price,
+    which shows work done but not yet billed to the client.
+    """
+    client_inv = ClientInvoice.objects.filter(status="PAID")
+    contractor_inv = ContractorInvoice.objects.filter(status="APPROVED")
+    work = CompleteWork.objects.filter(status="COMPLETED")
+    if start:
+        client_inv = client_inv.filter(invoice_date__gte=start)
+        contractor_inv = contractor_inv.filter(invoice_date__gte=start)
+        work = work.filter(schedule__scheduled_date__gte=start)
+    if end:
+        client_inv = client_inv.filter(invoice_date__lte=end)
+        contractor_inv = contractor_inv.filter(invoice_date__lte=end)
+        work = work.filter(schedule__scheduled_date__lte=end)
+
+    revenue = dict(client_inv.values("site").annotate(t=Sum("amount")).values_list("site", "t"))
+    cost = dict(contractor_inv.values("site").annotate(t=Sum("amount")).values_list("site", "t"))
+    jobs = dict(work.values("schedule__site").annotate(n=models.Count("id")).values_list("schedule__site", "n"))
+
+    rows = []
+    for site in Site.objects.select_related("client_id", "assigned_contractor").order_by("name"):
+        r = revenue.get(site.id) or ZERO
+        c = cost.get(site.id) or ZERO
+        n = jobs.get(site.id, 0)
+        rows.append({
+            "site": site,
+            "client": site.client_id,
+            "completed": n,
+            "work_value": site.price * n,
+            "revenue": r,
+            "cost": c,
+            "profit": r - c,
+            "margin": ((r - c) / r) if r else None,
+        })
+    return rows
+
+
+def totals_for(rows):
+    revenue = sum((r["revenue"] for r in rows), ZERO)
+    cost = sum((r["cost"] for r in rows), ZERO)
+    return {
+        "completed": sum(r["completed"] for r in rows),
+        "work_value": sum((r["work_value"] for r in rows), ZERO),
+        "revenue": revenue,
+        "cost": cost,
+        "profit": revenue - cost,
+        "margin": ((revenue - cost) / revenue) if revenue else None,
+    }
+
+
+def group_by_client(rows):
+    groups = {}
+    for row in rows:
+        groups.setdefault(row["client"].pk, {"client": row["client"], "rows": []})["rows"].append(row)
+    result = []
+    for g in groups.values():
+        result.append({"client": g["client"], "sites": len(g["rows"]), **totals_for(g["rows"])})
+    return sorted(result, key=lambda g: g["profit"], reverse=True)

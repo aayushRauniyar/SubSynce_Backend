@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views, views_invoices, views_work
+from . import views, views_calendar, views_invoices, views_reports, views_settings, views_work
 
 # App namespace - allows us to use 'ops:login', 'ops:dashboard', etc.
 app_name = 'ops'
@@ -33,6 +33,16 @@ urlpatterns = [
     path('invoices/<uuid:pk>/delete/', views_invoices.invoice_delete_view, name='invoice_delete'),
     path('invoices/<uuid:pk>/decide/', views_invoices.invoice_decide_view, name='invoice_decide'),
     path('invoices/<uuid:pk>/print/', views_invoices.invoice_print_view, name='invoice_print'),
+
+    # Calendar
+    path('calendar/', views_calendar.calendar_view, name='calendar'),
+    path('calendar/mine/', views_calendar.my_calendar_view, name='my_calendar'),
+
+    # Reports
+    path('reports/profitability/', views_reports.profitability_view, name='profitability'),
+
+    # Settings (Owner only)
+    path('settings/company/', views_settings.company_settings_view, name='company_settings'),
 
     # Logout
     path('logout/', views.logout_view, name='logout'),
