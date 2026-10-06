@@ -1,0 +1,11 @@
+{% comment %}Usage: include with icon, tone (primary|success|warning|error), value, label, hint{% endcomment %}
+<div class="card p-5 ">
+    <div class="flex items-center justify-between mb-3">
+        <div class="w-10 h-10 rounded-xl bg-{{ tone|default:'primary' }}/10 flex items-center justify-center">
+            <span class="material-symbols-outlined text-{{ tone|default:'primary' }}" style="font-size: 22px;" aria-hidden="true">{{ icon }}</span>
+        </div>
+        {% if hint %}<span class="text-xs text-ink-light">{{ hint }}</span>{% endif %}
+    </div>
+    <p class="text-2xl font-bold text-ink tabular-nums">{{ value }}</p>
+    <p class="text-sm text-ink-light mt-0.5">{{ label }}</p>
+</div>

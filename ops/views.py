@@ -6,7 +6,13 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.views.decorators.http import require_POST, require_http_methods
 
+from django.db import IntegrityError
+from django.utils.http import url_has_allowed_host_and_scheme
+
 from client.model.clientmanage import Client
+from invoice.model.invoicemanagement import ContractorInvoice
+from ops import services
+from ops.access import STAFF_ROLES, forbidden, is_contractor, is_staff_user
 from ops.forms import ClientForm
 
 
@@ -35,8 +41,12 @@ def login_view(request):
             messages.success(request, f'Welcome back, {user.username}!')
             
             # Redirect to dashboard (or next page if specified)
-            next_url = request.GET.get('next', 'ops:dashboard')
-            return redirect(next_url)
+            next_url = request.GET.get('next')
+            if next_url and url_has_allowed_host_and_scheme(
+                next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+            ):
+                return redirect(next_url)
+            return redirect('ops:dashboard')
         else:
             # Login failed
             messages.error(request, 'Invalid username or password.')
@@ -59,31 +69,44 @@ def logout_view(request):
 @login_required
 def dashboard_view(request):
     """
-    Dashboard view - shows overview of the system
-    
-    This view is protected by @login_required decorator
-    Only authenticated users can access this page
+    Dashboard - staff see business totals, contractors see their own jobs.
+
+    Staff can narrow the figures with ?start=YYYY-MM-DD&end=YYYY-MM-DD.
     """
-    # Get user information
     user = request.user
-    
-    # For now, we'll use mock data
-    # Later, we'll fetch real data from the database
+    if is_contractor(user):
+        return render(request, 'ops/dashboard_contractor.html', {
+            'summary': services.contractor_summary(user),
+        })
+    if not is_staff_user(user):
+        return forbidden(request)
+
+    start = services.parse_date(request.GET.get('start'))
+    end = services.parse_date(request.GET.get('end'))
+    range_error = None
+    if start and end and start > end:
+        range_error = 'Start date must be on or before the end date.'
+        start = end = None
+
+    pending_invoices = (
+        ContractorInvoice.objects.filter(status='PENDING')
+        .select_related('site', 'created_by')
+        .order_by('invoice_date')[:5]
+    )
     context = {
-        'user': user,
-        'stats': {
-            'active_jobs': 12,
-            'subcontractors': 28,
-            'invoices': 45,
-            'revenue': 124500,
-        }
+        'summary': services.admin_summary(start, end),
+        'today_jobs': services.todays_schedule(),
+        'pending_invoices': pending_invoices,
+        'start': start,
+        'end': end,
+        'range_error': range_error,
     }
-    
     return render(request, 'ops/dashboard.html', context)
 
 
 def _is_admin(request):
-    return request.user.is_authenticated and request.user.role == 'ADMINISTRATOR'
+    # The Owner is the superuser, so they get every administrator screen too.
+    return request.user.is_authenticated and request.user.role in STAFF_ROLES
 
 
 @login_required
@@ -136,7 +159,13 @@ def client_create_view(request):
         if email and Client.objects.filter(email=email).exists():
             form.add_error('email', 'A client with this email already exists.')
             return render(request, 'ops/client_add.html', {'user': request.user, 'form': form})
-        form.save()
+        try:
+            form.save()
+        except IntegrityError:
+            # Deleted clients are soft-deleted, so their phone number still
+            # occupies the unique index even though the form can't see them.
+            form.add_error('phone', 'This phone number belongs to a removed client. Use a different number.')
+            return render(request, 'ops/client_add.html', {'user': request.user, 'form': form})
         messages.success(request, 'Client added successfully.')
         return redirect('ops:clients')
 
@@ -162,7 +191,11 @@ def client_update_view(request, pk):
         if phone and Client.objects.filter(phone=phone).exclude(id=pk).exists():
             messages.error(request, 'A client with this phone number already exists.')
             return redirect('ops:clients')
-        form.save()
+        try:
+            form.save()
+        except IntegrityError:
+            messages.error(request, 'This phone number belongs to a removed client. Use a different number.')
+            return redirect('ops:clients')
         messages.success(request, 'Client updated successfully.')
     else:
         messages.error(request, 'Could not update client. Please check the details and try again.')
