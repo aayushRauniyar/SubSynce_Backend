@@ -25,15 +25,17 @@
                     <span>Dashboard</span>
                 </a>
                 
-                <!-- Clients (admin roles only) -->
-                {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}
-                <a href="#" 
+                <!-- Clients (Administrator only) -->
+                {% if user.role == 'ADMINISTRATOR' %}
+                <a href="{% url 'ops:clients' %}"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
                     <span class="material-symbols-outlined">person</span>
                     <span>Clients</span>
                 </a>
-                
-                <a href="#" 
+                {% endif %}
+
+                {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}
+                <a href="#"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
                     <span class="material-symbols-outlined">location_on</span>
                     <span>Sites</span>

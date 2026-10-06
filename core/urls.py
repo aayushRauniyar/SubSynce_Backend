@@ -44,11 +44,17 @@ api_patterns = [
     ),
     path("api/", include("authuser.urls")),
     path("api/", include("client.urls")),
+    path("api/", include("schedule.urls")),
+    path("api/", include("work.urls")),
+    path("api/", include("invoice.urls")),
+    path("api/", include("dashboard.urls"))
+
 ]
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include(web_patterns)),
     path("", include(api_patterns)),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
+  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

@@ -41,14 +41,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "drf_spectacular",
     "corsheaders",
+
     'authuser',
     'client',
     'ops',
+    'schedule',
+    'work',
+    'invoice',
+    'dashboard',
 ]
 
 MIDDLEWARE = [
@@ -222,6 +228,10 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'ops' / 'static',
 ]
+
+# User-uploaded files (client photos, site images, etc.)
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Authentication settings
 LOGIN_URL = 'ops:login'

@@ -1,0 +1,25 @@
+/* SubSync custom styles (Tailwind Play CDN covers utility classes; this file
+   holds the handful of things utilities can't reach). */
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #222221;
+    -webkit-box-shadow: 0 0 0px 1000px #FFFFFF inset;
+    transition: background-color 9999s ease-in-out 0s;
+}
+
+input[type="checkbox"] {
+    accent-color: #F4842B;
+}
+
+/* "Sign in as" role toggle: plain radios styled as pill buttons */
+.role-toggle input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.role-toggle label {
+    cursor: pointer;
+}
