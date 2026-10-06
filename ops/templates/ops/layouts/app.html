@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% comment %}
+Shared app shell: sidebar (desktop), top bar with theme toggle, bottom nav (mobile).
+Pages fill {% block page %}.
+{% endcomment %}
+
+{% block content %}
+<a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:rounded-lg focus:bg-card">Skip to content</a>
+<div class="flex h-screen overflow-hidden">
+    <aside class="hidden lg:flex lg:flex-col lg:w-64 bg-card border-r border-surface-container-high">
+        <div class="flex items-center gap-3 px-6 py-5 border-b border-surface-container-high">
+            <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-on-primary" style="font-size: 20px;" aria-hidden="true">cleaning_services</span>
+            </div>
+            <span class="text-lg font-semibold text-ink">SubSync</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1" aria-label="Main">
+            {% include 'ops/partials/sidebar_links.html' %}
+        </nav>
+        <div class="px-3 py-3 border-t border-surface-container-high">
+            <a href="{% url 'ops:logout' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                <span class="material-symbols-outlined" aria-hidden="true">logout</span><span>Log Out</span>
+            </a>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header class="sticky top-0 z-30 bg-card border-b border-surface-container-high">
+            <div class="flex items-center justify-between gap-3 px-4 lg:px-6 py-3">
+                <details class="lg:hidden relative">
+                    <summary class="list-none p-2 rounded-xl border border-surface-container-high cursor-pointer" aria-label="Open menu">
+                        <span class="material-symbols-outlined text-ink-light" aria-hidden="true">menu</span>
+                    </summary>
+                    <nav class="absolute left-0 mt-2 w-64 p-3 space-y-1 rounded-2xl bg-card border border-surface-container-high shadow-lg" aria-label="Main (mobile)">
+                        {% include 'ops/partials/sidebar_links.html' %}
+                        <a href="{% url 'ops:logout' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container">
+                            <span class="material-symbols-outlined" aria-hidden="true">logout</span><span>Log Out</span>
+                        </a>
+                    </nav>
+                </details>
+                <div class="flex-1"></div>
+                <button type="button" data-theme-toggle class="p-2 rounded-xl border border-surface-container-high hover:bg-surface-container transition-colors" aria-label="Toggle theme">
+                    <span class="material-symbols-outlined text-ink-light" style="font-size: 20px;" data-theme-icon aria-hidden="true">light_mode</span>
+                </button>
+                <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-primary" style="font-size: 18px;" aria-hidden="true">person</span>
+                    </div>
+                    <div class="hidden md:flex flex-col leading-tight">
+                        <span class="text-sm font-semibold text-ink">{{ user.username }}</span>
+                        <span class="text-xs text-ink-light">{{ user.role|title }}</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main id="main" class="flex-1 overflow-y-auto">
+            <div class="w-full max-w-7xl mx-auto px-4 lg:px-6 py-6">
+                {% block page %}{% endblock %}
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

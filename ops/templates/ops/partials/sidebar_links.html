@@ -1,0 +1,20 @@
+{% load ops_extras %}
+{% with link="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors" %}
+<a href="{% url 'ops:dashboard' %}" class="{{ link }} {% nav_class 'dashboard' %}">
+    <span class="material-symbols-outlined" aria-hidden="true">dashboard</span><span>Dashboard</span>
+</a>
+{% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}
+<p class="px-3 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-ink-light">Operations</p>
+<a href="{% url 'ops:clients' %}" class="{{ link }} {% nav_class 'clients' 'client_create' %}">
+    <span class="material-symbols-outlined" aria-hidden="true">person</span><span>Clients</span>
+</a>
+<p class="px-3 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-ink-light">Records</p>
+<a href="{% url 'ops:completions' %}" class="{{ link }} {% nav_class 'completions' 'completion_detail' %}">
+    <span class="material-symbols-outlined" aria-hidden="true">task_alt</span><span>Work Completions</span>
+</a>
+{% elif user.role == 'CONTRACTOR' %}
+<a href="{% url 'ops:my_jobs' %}" class="{{ link }} {% nav_class 'my_jobs' 'clock_out' 'work_detail' %}">
+    <span class="material-symbols-outlined" aria-hidden="true">work_history</span><span>My Jobs</span>
+</a>
+{% endif %}
+{% endwith %}

@@ -5,6 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}SubSync{% endblock %}</title>
+    <meta name="theme-color" content="#F5F3F1">
+
+    <!-- Theme: apply the saved choice before first paint so there is no flash.
+         Stored values: "light" (default), "dark", "system". -->
+    <script>
+        (function () {
+            var theme = 'light';
+            try { theme = localStorage.getItem('subsync-theme') || 'light'; } catch (e) {}
+            var dark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            document.documentElement.classList.toggle('dark', dark);
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
     
     <!-- Pretendard Font -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
@@ -28,15 +41,17 @@
             theme: {
                 extend: {
                     colors: {
-                        // SubSync brand colors from design.md
-                        surface: '#F5F3F1',
-                        'surface-container': '#E4DFD9',
-                        'surface-container-high': '#D9D3CC',
+                        // SubSync brand colors from design.md. Neutrals are CSS
+                        // variables (static/css/app.css) so dark mode can swap them.
+                        surface: 'rgb(var(--c-surface) / <alpha-value>)',
+                        'surface-container': 'rgb(var(--c-surface-container) / <alpha-value>)',
+                        'surface-container-high': 'rgb(var(--c-surface-container-high) / <alpha-value>)',
+                        card: 'rgb(var(--c-card) / <alpha-value>)',
                         primary: '#F4842B',
                         'primary-hover': '#E67520',
                         'on-primary': '#FFFFFF',
-                        ink: '#222221',
-                        'ink-light': '#6B6B6A',
+                        ink: 'rgb(var(--c-ink) / <alpha-value>)',
+                        'ink-light': 'rgb(var(--c-ink-light) / <alpha-value>)',
                         success: '#10B981',
                         warning: '#F59E0B',
                         error: '#EF4444',
@@ -73,6 +88,7 @@
     {% endblock %}
     
     <!-- JavaScript -->
+    <script src="{% static 'js/theme.js' %}"></script>
     {% block extra_js %}{% endblock %}
     
     <!-- Auto-hide messages after 5 seconds -->

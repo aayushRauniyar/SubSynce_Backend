@@ -1,0 +1,56 @@
+{% extends 'ops/layouts/app.html' %}
+
+{% block title %}Clock Out - SubSync{% endblock %}
+
+{% block page %}
+<div class="max-w-xl">
+    <a href="{% url 'ops:my_jobs' %}" class="inline-flex items-center gap-1 text-sm text-ink-light hover:text-ink mb-4">
+        <span class="material-symbols-outlined" style="font-size: 18px;" aria-hidden="true">arrow_back</span>My Jobs
+    </a>
+    <h1 class="text-2xl font-bold text-ink">Finish Job</h1>
+    <p class="text-ink-light text-sm mt-1">{{ work.schedule.site.name }} · {{ work.schedule.site.address }}</p>
+
+    <div class="mt-4 p-4 rounded-2xl bg-card border border-surface-container text-sm grid grid-cols-2 gap-3">
+        <div><p class="text-ink-light">Scheduled</p><p class="font-medium text-ink">{{ work.schedule.scheduled_date|date:"D j M" }}, {{ work.schedule.scheduled_time|time:"g:i A" }}</p></div>
+        <div><p class="text-ink-light">Clocked in</p><p class="font-medium text-ink">{{ work.check_in_time|date:"j M, g:i A" }}</p></div>
+        {% if work.schedule.site.cleaning_instructions %}
+        <div class="col-span-2"><p class="text-ink-light">Site instructions</p><p class="text-ink whitespace-pre-line">{{ work.schedule.site.cleaning_instructions }}</p></div>
+        {% endif %}
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="mt-4 p-5 rounded-2xl bg-card border border-surface-container space-y-4" data-busy-form>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="px-4 py-3 rounded-xl bg-error/10 text-error text-sm" role="alert">{{ form.non_field_errors|join:" " }}</div>
+        {% endif %}
+        <div>
+            <label for="id_completion_notes" class="block text-sm font-medium text-ink mb-1">Notes</label>
+            <textarea id="id_completion_notes" name="completion_notes" rows="4" maxlength="2000" class="field-input" placeholder="What was done, anything the office should know…">{{ form.completion_notes.value|default:"" }}</textarea>
+        </div>
+        <div>
+            <label for="id_location" class="block text-sm font-medium text-ink mb-1">Location <span class="text-ink-light font-normal">(optional)</span></label>
+            <input id="id_location" name="location" maxlength="255" value="{{ form.location.value|default:'' }}" class="field-input" placeholder="e.g. Level 2, east wing…">
+        </div>
+        <div>
+            <label for="id_photos" class="block text-sm font-medium text-ink mb-1">Photo evidence <span class="text-ink-light font-normal">(optional, up to 5 JPG/PNG, 5MB each)</span></label>
+            <input id="id_photos" name="photos" type="file" accept="image/jpeg,image/png" multiple class="block w-full text-sm text-ink-light file:mr-3 file:px-3 file:py-2 file:rounded-xl file:border-0 file:bg-surface-container file:text-ink">
+        </div>
+        <p class="text-xs text-ink-light">Check-out time is recorded automatically when you submit.</p>
+        <button class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-on-primary font-medium hover:bg-primary-hover transition-colors">
+            <span class="material-symbols-outlined" style="font-size: 20px;" aria-hidden="true">task_alt</span>Clock Out &amp; Complete
+        </button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Prevent double submits: disable the button once the form is on its way.
+    document.querySelectorAll('[data-busy-form]').forEach(function (form) {
+        form.addEventListener('submit', function () {
+            var btn = form.querySelector('button');
+            if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); }
+        });
+    });
+</script>
+{% endblock %}

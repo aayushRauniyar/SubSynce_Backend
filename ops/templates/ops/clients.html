@@ -30,7 +30,7 @@
                     <span>Calendar</span>
                 </a>
 
-                {% if user.role == 'ADMINISTRATOR' %}
+                {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}
                 <a href="{% url 'ops:clients' %}"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium bg-primary/10 text-primary">
                     <span class="material-symbols-outlined">person</span>
@@ -108,8 +108,8 @@
         <!-- Top Bar -->
         <header class="sticky top-0 z-30 bg-white border-b border-surface-container-high">
             <div class="flex items-center justify-end px-4 lg:px-6 py-3 gap-3">
-                <button class="p-2 rounded-xl border border-surface-container-high hover:bg-surface-container transition-colors" title="Toggle theme">
-                    <span class="material-symbols-outlined text-ink-light" style="font-size: 20px;">light_mode</span>
+                <button type="button" data-theme-toggle class="p-2 rounded-xl border border-surface-container-high hover:bg-surface-container transition-colors" title="Toggle theme">
+                    <span class="material-symbols-outlined text-ink-light" style="font-size: 20px;" data-theme-icon aria-hidden="true">light_mode</span>
                 </button>
 
                 <button class="relative p-2 rounded-xl border border-surface-container-high hover:bg-surface-container transition-colors">

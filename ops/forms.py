@@ -30,3 +30,30 @@ class ClientForm(forms.ModelForm):
             raise forms.ValidationError("Photo must be 5MB or smaller.")
 
         return photo
+
+
+MAX_EVIDENCE_PHOTOS = 5
+
+
+class ClockOutForm(forms.Form):
+    """Finish a job: notes, where it was done, and optional photo evidence."""
+
+    completion_notes = forms.CharField(
+        required=False, widget=forms.Textarea(attrs={"rows": 4}), max_length=2000
+    )
+    location = forms.CharField(required=False, max_length=255)
+
+    def __init__(self, *args, photos=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.photos = photos or []
+
+    def clean(self):
+        cleaned = super().clean()
+        if len(self.photos) > MAX_EVIDENCE_PHOTOS:
+            raise forms.ValidationError(f"Upload up to {MAX_EVIDENCE_PHOTOS} photos.")
+        for photo in self.photos:
+            if getattr(photo, "content_type", None) not in ALLOWED_PHOTO_CONTENT_TYPES:
+                raise forms.ValidationError(f"{photo.name}: photos must be JPG or PNG.")
+            if photo.size > MAX_PHOTO_SIZE_BYTES:
+                raise forms.ValidationError(f"{photo.name}: photos must be 5MB or smaller.")
+        return cleaned

@@ -1,0 +1,89 @@
+{% extends 'ops/layouts/app.html' %}
+{% load ops_extras %}
+
+{% block title %}My Jobs - SubSync{% endblock %}
+
+{% block page %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-ink">My Jobs</h1>
+    <p class="text-ink-light text-sm mt-1">Clock in when you arrive and clock out when the job is done.</p>
+</div>
+
+{% if in_progress %}
+<section class="mb-4 p-4 rounded-2xl bg-warning/10 border border-warning/30" aria-labelledby="active-heading">
+    <h2 id="active-heading" class="text-sm font-semibold text-ink mb-2">In Progress</h2>
+    {% for work in in_progress %}
+    <div class="flex items-center justify-between gap-3 py-1">
+        <p class="text-sm text-ink">{{ work.schedule.site.name }} · clocked in {{ work.check_in_time|date:"j M, g:i A" }}</p>
+        <a href="{% url 'ops:clock_out' work.id %}" class="px-3 py-2 rounded-xl bg-primary text-on-primary text-sm font-medium hover:bg-primary-hover transition-colors">Clock Out</a>
+    </div>
+    {% endfor %}
+</section>
+{% endif %}
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+    <section class="bg-card rounded-2xl p-5 border border-surface-container" aria-labelledby="todo-heading">
+        <h2 id="todo-heading" class="text-base font-semibold text-ink mb-4">Ready to Start</h2>
+        {% if to_do %}
+        <ul class="divide-y divide-surface-container">
+            {% for job in to_do %}
+            <li class="flex items-center justify-between gap-3 py-3">
+                <div class="min-w-0">
+                    <p class="text-sm font-medium text-ink truncate">{{ job.site.name }}</p>
+                    <p class="text-xs {% if job.scheduled_date < today %}text-error{% else %}text-ink-light{% endif %}">
+                        {{ job.scheduled_date|date:"D j M" }} · {{ job.scheduled_time|time:"g:i A" }}{% if job.scheduled_date < today %} · overdue{% endif %}
+                    </p>
+                </div>
+                {% include 'ops/partials/job_actions.html' %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-sm text-ink-light">Nothing to start right now.</p>
+        {% endif %}
+    </section>
+
+    <section class="bg-card rounded-2xl p-5 border border-surface-container" aria-labelledby="upcoming-heading">
+        <h2 id="upcoming-heading" class="text-base font-semibold text-ink mb-4">Upcoming</h2>
+        {% if upcoming %}
+        <ul class="divide-y divide-surface-container">
+            {% for job in upcoming %}
+            <li class="py-3">
+                <p class="text-sm font-medium text-ink">{{ job.site.name }}</p>
+                <p class="text-xs text-ink-light">{{ job.scheduled_date|date:"D j M" }} · {{ job.scheduled_time|time:"g:i A" }} · {{ job.site.address }}</p>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-sm text-ink-light">No upcoming jobs.</p>
+        {% endif %}
+    </section>
+</div>
+
+<section class="bg-card rounded-2xl border border-surface-container overflow-hidden" aria-labelledby="history-heading">
+    <h2 id="history-heading" class="text-base font-semibold text-ink px-5 pt-5 pb-3">History</h2>
+    {% if history %}
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="text-left text-xs uppercase tracking-wider text-ink-light">
+                <tr><th class="px-5 py-2">Site</th><th class="px-5 py-2">Date</th><th class="px-5 py-2">Check-in</th><th class="px-5 py-2">Check-out</th><th class="px-5 py-2">Status</th></tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container">
+                {% for work in history %}
+                <tr class="hover:bg-surface/60">
+                    <td class="px-5 py-3"><a href="{% url 'ops:work_detail' work.id %}" class="font-medium text-ink hover:text-primary">{{ work.schedule.site.name }}</a></td>
+                    <td class="px-5 py-3 text-ink-light">{{ work.schedule.scheduled_date|date:"j M Y" }}</td>
+                    <td class="px-5 py-3 tabular-nums">{{ work.check_in_time|time:"g:i A"|default:"—" }}</td>
+                    <td class="px-5 py-3 tabular-nums">{{ work.check_out_time|time:"g:i A"|default:"—" }}</td>
+                    <td class="px-5 py-3"><span class="pill pill-{{ work.status|lower }}">{{ work.status|label }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% include 'ops/partials/pagination.html' with page_obj=history %}
+    {% else %}
+    <p class="px-5 pb-5 text-sm text-ink-light">No finished jobs yet.</p>
+    {% endif %}
+</section>
+{% endblock %}

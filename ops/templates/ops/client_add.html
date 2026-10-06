@@ -24,7 +24,7 @@
                     <span>Dashboard</span>
                 </a>
 
-                {% if user.role == 'ADMINISTRATOR' %}
+                {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}
                 <a href="{% url 'ops:clients' %}"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium bg-primary/10 text-primary">
                     <span class="material-symbols-outlined">person</span>
