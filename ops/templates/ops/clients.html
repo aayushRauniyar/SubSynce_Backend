@@ -1,296 +1,163 @@
-{% extends 'base.html' %}
+{% extends 'ops/layouts/app.html' %}
 {% load static %}
 
 {% block title %}Clients - SubSync{% endblock %}
 
-{% block content %}
-<div class="flex h-screen overflow-hidden">
-    <!-- Sidebar -->
-    <aside class="hidden lg:flex lg:flex-col lg:w-64 bg-white border-r border-surface-container-high">
-        <!-- Logo -->
-        <div class="flex items-center gap-3 px-6 py-5 border-b border-surface-container-high">
-            <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
-                <span class="material-symbols-outlined text-on-primary" style="font-size: 20px;">cleaning_services</span>
-            </div>
-            <span class="text-lg font-semibold text-ink">SubSync</span>
+{% block page %}
+<!-- Page Header -->
+<div class="mb-5">
+    <h1 class="text-2xl font-bold text-ink">Clients</h1>
+    <p class="text-ink-light text-sm mt-1">Manage all your clients in one place.</p>
+</div>
+
+<!-- Add Client -->
+<div class="flex justify-end mb-4">
+    <a href="{% url 'ops:client_create' %}"
+       class="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-on-primary text-sm font-medium transition-colors">
+        <span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+        Add Client
+    </a>
+</div>
+
+<!-- Search / Filter / Export -->
+<form method="get" class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
+    <div class="relative w-full sm:max-w-sm">
+        <div class="absolute left-3 top-1/2 -translate-y-1/2 text-ink-light">
+            <span class="material-symbols-outlined" style="font-size: 18px;">search</span>
         </div>
-
-        <!-- Navigation -->
-        <nav class="flex-1 overflow-y-auto px-3 py-4">
-            <div class="space-y-1">
-                <a href="{% url 'ops:dashboard' %}"
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
-                    <span class="material-symbols-outlined">dashboard</span>
-                    <span>Dashboard</span>
-                </a>
-
-                <a href="#"
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
-                    <span class="material-symbols-outlined">calendar_month</span>
-                    <span>Calendar</span>
-                </a>
-
-                {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}
-                <a href="{% url 'ops:clients' %}"
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium bg-primary/10 text-primary">
-                    <span class="material-symbols-outlined">person</span>
-                    <span>Clients</span>
-                </a>
-                {% endif %}
-
-                {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}
-                <a href="#"
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
-                    <span class="material-symbols-outlined">location_on</span>
-                    <span>Sites</span>
-                </a>
-                {% endif %}
-
-                <a href="#"
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
-                    <span class="material-symbols-outlined">engineering</span>
-                    <span>Subcontractors</span>
-                </a>
-
-                <a href="#"
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
-                    <span class="material-symbols-outlined">event</span>
-                    <span>Schedules</span>
-                </a>
-
-                <a href="#"
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
-                    <span class="material-symbols-outlined">receipt_long</span>
-                    <span>Invoices</span>
-                </a>
-
-                <a href="#"
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
-                    <span class="material-symbols-outlined">bar_chart</span>
-                    <span>Reports</span>
-                </a>
-            </div>
-
-            <div class="my-3 border-t border-dashed border-surface-container-high"></div>
-
-            <div class="space-y-1">
-                {% if user.role == 'OWNER' %}
-                <a href="#"
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
-                    <span class="material-symbols-outlined">group</span>
-                    <span>Users</span>
-                </a>
-                {% endif %}
-
-                <a href="#"
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
-                    <span class="material-symbols-outlined">settings</span>
-                    <span>Settings</span>
-                </a>
-
-                <a href="#"
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
-                    <span class="material-symbols-outlined">help</span>
-                    <span>Help</span>
-                </a>
-
-                <a href="{% url 'ops:logout' %}"
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
-                    <span class="material-symbols-outlined">logout</span>
-                    <span>Logout</span>
-                </a>
-            </div>
-        </nav>
-    </aside>
-
-    <!-- Main Content -->
-    <div class="flex-1 flex flex-col overflow-hidden">
-        <!-- Top Bar -->
-        <header class="sticky top-0 z-30 bg-white border-b border-surface-container-high">
-            <div class="flex items-center justify-end px-4 lg:px-6 py-3 gap-3">
-                <button type="button" data-theme-toggle class="p-2 rounded-xl border border-surface-container-high hover:bg-surface-container transition-colors" title="Toggle theme">
-                    <span class="material-symbols-outlined text-ink-light" style="font-size: 20px;" data-theme-icon aria-hidden="true">light_mode</span>
-                </button>
-
-                <button class="relative p-2 rounded-xl border border-surface-container-high hover:bg-surface-container transition-colors">
-                    <span class="material-symbols-outlined text-ink-light" style="font-size: 20px;">notifications</span>
-                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
-                </button>
-
-                <div class="flex items-center gap-2 pl-1 pr-1 py-1 rounded-xl hover:bg-surface-container transition-colors cursor-default">
-                    <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                        <span class="material-symbols-outlined text-primary" style="font-size: 18px;">person</span>
-                    </div>
-                    <div class="hidden md:flex flex-col leading-tight">
-                        <span class="text-sm font-semibold text-ink">{{ user.username }}</span>
-                        <span class="text-xs text-ink-light">{{ user.role|title }}</span>
-                    </div>
-                    <span class="material-symbols-outlined text-ink-light hidden md:block" style="font-size: 18px;">expand_more</span>
-                </div>
-            </div>
-        </header>
-
-        <!-- Page Content -->
-        <main class="flex-1 overflow-y-auto">
-            <div class="w-full px-4 lg:px-6 py-6">
-                <!-- Page Header -->
-                <div class="mb-5">
-                    <h1 class="text-2xl font-bold text-ink">Clients</h1>
-                    <p class="text-ink-light text-sm mt-1">Manage all your clients in one place.</p>
-                </div>
-
-                <!-- Add Client -->
-                <div class="flex justify-end mb-4">
-                    <a href="{% url 'ops:client_create' %}"
-                       class="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-on-primary text-sm font-medium transition-colors">
-                        <span class="material-symbols-outlined" style="font-size: 18px;">add</span>
-                        Add Client
-                    </a>
-                </div>
-
-                <!-- Search / Filter / Export -->
-                <form method="get" class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
-                    <div class="relative w-full sm:max-w-sm">
-                        <div class="absolute left-3 top-1/2 -translate-y-1/2 text-ink-light">
-                            <span class="material-symbols-outlined" style="font-size: 18px;">search</span>
-                        </div>
-                        <input
-                            type="text"
-                            name="q"
-                            value="{{ query }}"
-                            placeholder="Search by name, email or phone..."
-                            class="w-full h-10 pl-9 pr-4 rounded-xl bg-white border border-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm"
-                        >
-                    </div>
-
-                    <div class="flex items-center gap-2 shrink-0">
-                        <!-- Visual-only: no status field exists on Client yet, so this doesn't filter -->
-                        <button type="button" disabled title="No client status field exists yet"
-                                class="flex items-center gap-1.5 h-10 px-3.5 rounded-xl bg-white border border-surface-container-high text-sm text-ink-light cursor-not-allowed">
-                            <span class="material-symbols-outlined" style="font-size: 16px;">filter_list</span>
-                            All Clients
-                            <span class="material-symbols-outlined" style="font-size: 16px;">expand_more</span>
-                        </button>
-                        <!-- Visual-only: no export feature exists yet -->
-                        <button type="button" disabled title="Export isn't implemented yet"
-                                class="flex items-center gap-1.5 h-10 px-3.5 rounded-xl bg-white border border-surface-container-high text-sm text-ink-light cursor-not-allowed">
-                            <span class="material-symbols-outlined" style="font-size: 16px;">ios_share</span>
-                            Export
-                        </button>
-                    </div>
-                </form>
-
-                <!-- Clients Table -->
-                <div class="bg-white rounded-2xl border border-surface-container overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead>
-                                <tr class="bg-primary text-on-primary text-left">
-                                    <th class="pl-6 pr-2 py-3 w-10">
-                                        <input type="checkbox" id="select-all" class="w-4 h-4 rounded accent-white">
-                                    </th>
-                                    <th class="px-3 py-3 font-semibold text-xs tracking-wide uppercase">Client Name</th>
-                                    <th class="px-3 py-3 font-semibold text-xs tracking-wide uppercase">Phone</th>
-                                    <th class="px-3 py-3 font-semibold text-xs tracking-wide uppercase">Email</th>
-                                    <th class="px-3 py-3 font-semibold text-xs tracking-wide uppercase">Sites</th>
-                                    <th class="px-3 py-3 font-semibold text-xs tracking-wide uppercase text-right pr-6">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for client in page_obj %}
-                                <tr class="border-b border-surface-container last:border-0 hover:bg-surface/60">
-                                    <td class="pl-6 pr-2 py-3">
-                                        <input type="checkbox" class="row-checkbox w-4 h-4 rounded accent-primary">
-                                    </td>
-                                    <td class="px-3 py-3">
-                                        <div class="flex items-center gap-2.5">
-                                            {% if client.photo %}
-                                            <img src="{{ client.photo.url }}" alt=""
-                                                 class="w-8 h-8 rounded-full object-cover shrink-0">
-                                            {% else %}
-                                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold shrink-0
-                                                {% cycle 'bg-primary/10 text-primary' 'bg-success/10 text-success' 'bg-warning/10 text-warning' 'bg-error/10 text-error' as avatar_color %}">
-                                                {{ client.first_name|default:""|first|upper }}{{ client.last_name|default:""|first|upper }}
-                                            </div>
-                                            {% endif %}
-                                            <span class="font-medium text-ink">{{ client.first_name }} {{ client.last_name }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-3 py-3 text-ink-light">{{ client.phone|default:"—" }}</td>
-                                    <td class="px-3 py-3 text-ink-light">{{ client.email|default:"—" }}</td>
-                                    <td class="px-3 py-3 text-ink-light">{{ client.sites.count }}</td>
-                                    <td class="px-3 py-3 pr-6">
-                                        <div class="flex items-center justify-end gap-1.5">
-                                            <button type="button"
-                                                    title="View"
-                                                    onclick="openViewModal('{{ client.first_name|escapejs }} {{ client.last_name|default:''|escapejs }}', '{{ client.phone|default:''|escapejs }}', '{{ client.email|default:''|escapejs }}', {{ client.sites.all|length }})"
-                                                    class="p-1.5 rounded-lg border border-surface-container-high hover:bg-surface-container transition-colors">
-                                            <span class="material-symbols-outlined text-ink-light" style="font-size: 16px;">visibility</span>
-                                            </button>
-                                            <button type="button"
-                                                    title="Edit"
-                                                    onclick="openClientModal('{{ client.id }}', '{{ client.first_name|escapejs }}', '{{ client.last_name|default:''|escapejs }}', '{{ client.phone|default:''|escapejs }}', '{{ client.email|default:''|escapejs }}', '{{ client.role|escapejs }}', '{{ client.status|escapejs }}')"
-                                                    class="p-1.5 rounded-lg border border-surface-container-high hover:bg-surface-container transition-colors">
-                                                <span class="material-symbols-outlined text-primary" style="font-size: 16px;">edit</span>
-                                            </button>
-                                            <form method="post" action="{% url 'ops:client_delete' client.id %}"
-                                                  onsubmit="return confirm('Remove {{ client.first_name|escapejs }} {{ client.last_name|default:''|escapejs }}? This cannot be undone.');">
-                                                {% csrf_token %}
-                                                <button type="submit" title="Delete"
-                                                        class="p-1.5 rounded-lg border border-surface-container-high hover:bg-error/10 transition-colors">
-                                                    <span class="material-symbols-outlined text-error" style="font-size: 16px;">delete</span>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="6" class="px-6 py-12 text-center text-ink-light">
-                                        {% if query %}No clients match "{{ query }}".{% else %}No clients yet. Add your first client to get started.{% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Pagination -->
-                    {% if page_obj.paginator.num_pages > 1 %}
-                    <div class="flex items-center justify-between px-6 py-3.5 border-t border-surface-container">
-                        <p class="text-xs text-ink-light">
-                            Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ total_clients }} clients
-                        </p>
-                        <div class="flex items-center gap-1.5">
-                            {% if page_obj.has_previous %}
-                            <a href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.previous_page_number }}"
-                               class="w-7 h-7 flex items-center justify-center rounded-lg border border-surface-container-high hover:bg-surface-container text-ink-light">
-                                <span class="material-symbols-outlined" style="font-size: 15px;">chevron_left</span>
-                            </a>
-                            {% endif %}
-                            {% for num in page_obj.paginator.page_range %}
-                            <a href="?{% if query %}q={{ query }}&{% endif %}page={{ num }}"
-                               class="w-7 h-7 flex items-center justify-center rounded-lg text-xs {% if num == page_obj.number %}bg-primary text-on-primary{% else %}border border-surface-container-high hover:bg-surface-container text-ink-light{% endif %}">
-                                {{ num }}
-                            </a>
-                            {% endfor %}
-                            {% if page_obj.has_next %}
-                            <a href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.next_page_number }}"
-                               class="w-7 h-7 flex items-center justify-center rounded-lg border border-surface-container-high hover:bg-surface-container text-ink-light">
-                                <span class="material-symbols-outlined" style="font-size: 15px;">chevron_right</span>
-                            </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% elif total_clients %}
-                    <div class="px-6 py-3.5 border-t border-surface-container">
-                        <p class="text-xs text-ink-light">Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ total_clients }} clients</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </main>
+        <input
+            type="text"
+            name="q"
+            value="{{ query }}"
+            placeholder="Search by name, email or phone..."
+            class="w-full h-10 pl-9 pr-4 rounded-xl bg-white border border-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm"
+        >
     </div>
+
+    <div class="flex items-center gap-2 shrink-0">
+        <!-- Visual-only: no status field exists on Client yet, so this doesn't filter -->
+        <button type="button" disabled title="No client status field exists yet"
+                class="flex items-center gap-1.5 h-10 px-3.5 rounded-xl bg-white border border-surface-container-high text-sm text-ink-light cursor-not-allowed">
+            <span class="material-symbols-outlined" style="font-size: 16px;">filter_list</span>
+            All Clients
+            <span class="material-symbols-outlined" style="font-size: 16px;">expand_more</span>
+        </button>
+        <!-- Visual-only: no export feature exists yet -->
+        <button type="button" disabled title="Export isn't implemented yet"
+                class="flex items-center gap-1.5 h-10 px-3.5 rounded-xl bg-white border border-surface-container-high text-sm text-ink-light cursor-not-allowed">
+            <span class="material-symbols-outlined" style="font-size: 16px;">ios_share</span>
+            Export
+        </button>
+    </div>
+</form>
+
+<!-- Clients Table -->
+<div class="bg-white rounded-2xl border border-surface-container overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="bg-primary text-on-primary text-left">
+                    <th class="pl-6 pr-2 py-3 w-10">
+                        <input type="checkbox" id="select-all" class="w-4 h-4 rounded accent-white">
+                    </th>
+                    <th class="px-3 py-3 font-semibold text-xs tracking-wide uppercase">Client Name</th>
+                    <th class="px-3 py-3 font-semibold text-xs tracking-wide uppercase">Phone</th>
+                    <th class="px-3 py-3 font-semibold text-xs tracking-wide uppercase">Email</th>
+                    <th class="px-3 py-3 font-semibold text-xs tracking-wide uppercase">Sites</th>
+                    <th class="px-3 py-3 font-semibold text-xs tracking-wide uppercase text-right pr-6">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in page_obj %}
+                <tr class="border-b border-surface-container last:border-0 hover:bg-surface/60">
+                    <td class="pl-6 pr-2 py-3">
+                        <input type="checkbox" class="row-checkbox w-4 h-4 rounded accent-primary">
+                    </td>
+                    <td class="px-3 py-3">
+                        <div class="flex items-center gap-2.5">
+                            {% if client.photo %}
+                            <img src="{{ client.photo.url }}" alt=""
+                                 class="w-8 h-8 rounded-full object-cover shrink-0">
+                            {% else %}
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold shrink-0
+                                {% cycle 'bg-primary/10 text-primary' 'bg-success/10 text-success' 'bg-warning/10 text-warning' 'bg-error/10 text-error' as avatar_color %}">
+                                {{ client.first_name|default:""|first|upper }}{{ client.last_name|default:""|first|upper }}
+                            </div>
+                            {% endif %}
+                            <span class="font-medium text-ink">{{ client.first_name }} {{ client.last_name }}</span>
+                        </div>
+                    </td>
+                    <td class="px-3 py-3 text-ink-light">{{ client.phone|default:"—" }}</td>
+                    <td class="px-3 py-3 text-ink-light">{{ client.email|default:"—" }}</td>
+                    <td class="px-3 py-3 text-ink-light">{{ client.sites.count }}</td>
+                    <td class="px-3 py-3 pr-6">
+                        <div class="flex items-center justify-end gap-1.5">
+                            <button type="button"
+                                    title="View"
+                                    onclick="openViewModal('{{ client.first_name|escapejs }} {{ client.last_name|default:''|escapejs }}', '{{ client.phone|default:''|escapejs }}', '{{ client.email|default:''|escapejs }}', {{ client.sites.all|length }})"
+                                    class="p-1.5 rounded-lg border border-surface-container-high hover:bg-surface-container transition-colors">
+                            <span class="material-symbols-outlined text-ink-light" style="font-size: 16px;">visibility</span>
+                            </button>
+                            <button type="button"
+                                    title="Edit"
+                                    onclick="openClientModal('{{ client.id }}', '{{ client.first_name|escapejs }}', '{{ client.last_name|default:''|escapejs }}', '{{ client.phone|default:''|escapejs }}', '{{ client.email|default:''|escapejs }}', '{{ client.role|escapejs }}', '{{ client.status|escapejs }}')"
+                                    class="p-1.5 rounded-lg border border-surface-container-high hover:bg-surface-container transition-colors">
+                                <span class="material-symbols-outlined text-primary" style="font-size: 16px;">edit</span>
+                            </button>
+                            <form method="post" action="{% url 'ops:client_delete' client.id %}"
+                                  onsubmit="return confirm('Remove {{ client.first_name|escapejs }} {{ client.last_name|default:''|escapejs }}? This cannot be undone.');">
+                                {% csrf_token %}
+                                <button type="submit" title="Delete"
+                                        class="p-1.5 rounded-lg border border-surface-container-high hover:bg-error/10 transition-colors">
+                                    <span class="material-symbols-outlined text-error" style="font-size: 16px;">delete</span>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center text-ink-light">
+                        {% if query %}No clients match "{{ query }}".{% else %}No clients yet. Add your first client to get started.{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="flex items-center justify-between px-6 py-3.5 border-t border-surface-container">
+        <p class="text-xs text-ink-light">
+            Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ total_clients }} clients
+        </p>
+        <div class="flex items-center gap-1.5">
+            {% if page_obj.has_previous %}
+            <a href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.previous_page_number }}"
+               class="w-7 h-7 flex items-center justify-center rounded-lg border border-surface-container-high hover:bg-surface-container text-ink-light">
+                <span class="material-symbols-outlined" style="font-size: 15px;">chevron_left</span>
+            </a>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+            <a href="?{% if query %}q={{ query }}&{% endif %}page={{ num }}"
+               class="w-7 h-7 flex items-center justify-center rounded-lg text-xs {% if num == page_obj.number %}bg-primary text-on-primary{% else %}border border-surface-container-high hover:bg-surface-container text-ink-light{% endif %}">
+                {{ num }}
+            </a>
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <a href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.next_page_number }}"
+               class="w-7 h-7 flex items-center justify-center rounded-lg border border-surface-container-high hover:bg-surface-container text-ink-light">
+                <span class="material-symbols-outlined" style="font-size: 15px;">chevron_right</span>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% elif total_clients %}
+    <div class="px-6 py-3.5 border-t border-surface-container">
+        <p class="text-xs text-ink-light">Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ total_clients }} clients</p>
+    </div>
+    {% endif %}
 </div>
 
 <!-- Edit Client Modal -->
@@ -379,7 +246,6 @@
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}

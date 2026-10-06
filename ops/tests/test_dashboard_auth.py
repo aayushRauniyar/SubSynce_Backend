@@ -82,6 +82,14 @@ class ClientAccessTests(TestCase):
         login(self.client, make_user("OWNER"))
         self.assertEqual(self.client.get(reverse("ops:clients")).status_code, 200)
 
+    def test_client_pages_use_shared_app_shell(self):
+        login(self.client, make_user("OWNER"))
+        for name in ("ops:clients", "ops:client_create"):
+            resp = self.client.get(reverse(name))
+            self.assertTemplateUsed(resp, "ops/layouts/app.html")
+            self.assertContains(resp, "Work Completions")
+            self.assertNotContains(resp, "<span>Help</span>", html=False)
+
     def test_reusing_deleted_clients_phone_shows_error_not_500(self):
         login(self.client, make_user("ADMINISTRATOR"))
         data = {"first_name": "Tech", "phone": "0400111222", "email": "a@x.com", "role": "ADMINISTRATOR", "status": "ACTIVE"}
