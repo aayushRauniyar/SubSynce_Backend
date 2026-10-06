@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views, views_calendar, views_invoices, views_reports, views_settings, views_work
+from . import views, views_calendar, views_client_invoices, views_invoices, views_reports, views_settings, views_work
 
 # App namespace - allows us to use 'ops:login', 'ops:dashboard', etc.
 app_name = 'ops'
@@ -33,6 +33,15 @@ urlpatterns = [
     path('invoices/<uuid:pk>/delete/', views_invoices.invoice_delete_view, name='invoice_delete'),
     path('invoices/<uuid:pk>/decide/', views_invoices.invoice_decide_view, name='invoice_decide'),
     path('invoices/<uuid:pk>/print/', views_invoices.invoice_print_view, name='invoice_print'),
+
+    # Client invoices (what the company bills clients; Admin and Owner)
+    path('client-invoices/', views_client_invoices.client_invoice_list_view, name='client_invoices'),
+    path('client-invoices/new/', views_client_invoices.client_invoice_create_view, name='client_invoice_create'),
+    path('client-invoices/<uuid:pk>/', views_client_invoices.client_invoice_detail_view, name='client_invoice_detail'),
+    path('client-invoices/<uuid:pk>/edit/', views_client_invoices.client_invoice_edit_view, name='client_invoice_edit'),
+    path('client-invoices/<uuid:pk>/delete/', views_client_invoices.client_invoice_delete_view, name='client_invoice_delete'),
+    path('client-invoices/<uuid:pk>/status/', views_client_invoices.client_invoice_status_view, name='client_invoice_status'),
+    path('client-invoices/<uuid:pk>/print/', views_client_invoices.client_invoice_print_view, name='client_invoice_print'),
 
     # Calendar
     path('calendar/', views_calendar.calendar_view, name='calendar'),

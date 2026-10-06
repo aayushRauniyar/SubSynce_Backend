@@ -156,12 +156,12 @@ input[type="checkbox"] {
     border-radius: 9999px;
     background-color: currentColor;
 }
-.pill-scheduled { background: rgb(var(--c-scheduled) / 0.12); color: rgb(var(--c-scheduled)); }
+.pill-scheduled, .pill-issued { background: rgb(var(--c-scheduled) / 0.12); color: rgb(var(--c-scheduled)); }
 .pill-in_progress, .pill-pending { background: rgb(var(--c-warning) / 0.12); color: rgb(var(--c-warning)); }
 .pill-completed, .pill-approved, .pill-paid { background: rgb(var(--c-success) / 0.12); color: rgb(var(--c-success)); }
 .pill-missed { background: rgb(var(--c-missed) / 0.14); color: rgb(var(--c-missed)); }
 .pill-rejected, .pill-overdue, .pill-flagged { background: rgb(var(--c-error) / 0.09); color: rgb(var(--c-error)); }
-.pill-cancelled, .pill-issued { background: rgb(var(--c-surface-high)); color: rgb(var(--c-ink-light)); }
+.pill-cancelled { background: rgb(var(--c-surface-high)); color: rgb(var(--c-ink-light)); }
 
 /* Calendar chips: no dot, so the site name gets the room */
 .pill.chip { display: flex; min-width: 0; }

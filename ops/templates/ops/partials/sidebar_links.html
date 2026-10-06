@@ -18,6 +18,10 @@
 <a href="{% url 'ops:invoices' %}" class="{{ link }} {% nav_class 'invoices' 'invoice_detail' %}">
     <span class="material-symbols-outlined" aria-hidden="true">receipt_long</span><span>Contractor Invoices</span>
 </a>
+<p class="px-3 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-ink-light">Billing</p>
+<a href="{% url 'ops:client_invoices' %}" class="{{ link }} {% nav_class 'client_invoices' 'client_invoice_create' 'client_invoice_detail' 'client_invoice_edit' %}">
+    <span class="material-symbols-outlined" aria-hidden="true">request_quote</span><span>Client Invoices</span>
+</a>
 <p class="px-3 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-ink-light">Insights</p>
 <a href="{% url 'ops:profitability' %}" class="{{ link }} {% nav_class 'profitability' %}">
     <span class="material-symbols-outlined" aria-hidden="true">bar_chart</span><span>Profitability</span>
