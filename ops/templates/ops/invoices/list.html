@@ -1,0 +1,73 @@
+{% extends 'ops/layouts/app.html' %}
+{% load ops_extras %}
+
+{% block title %}Invoices - SubSync{% endblock %}
+
+{% block page %}
+<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-5">
+    <div>
+        <h1 class="text-2xl font-bold text-ink">{% if user.role == 'CONTRACTOR' %}My Invoices{% else %}Contractor Invoices{% endif %}</h1>
+        <p class="text-ink-light text-sm mt-1">{% if user.role == 'CONTRACTOR' %}Bill for completed work and track each invoice's status.{% else %}Check each invoice against recorded work, then approve or reject it.{% endif %}</p>
+    </div>
+    {% if user.role == 'CONTRACTOR' %}
+    <a href="{% url 'ops:invoice_create' %}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-medium hover:bg-primary-hover transition-colors">
+        <span class="material-symbols-outlined" style="font-size: 20px;" aria-hidden="true">add</span>New Invoice
+    </a>
+    {% endif %}
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+    {% include 'ops/partials/stat_card.html' with icon='pending_actions' tone='warning' value=totals.pending_count label='Pending' hint=totals.pending_total|money %}
+    {% include 'ops/partials/stat_card.html' with icon='verified' tone='success' value=totals.approved_total|money label='Approved total' %}
+    {% include 'ops/partials/stat_card.html' with icon='block' tone='error' value=totals.rejected_count label='Rejected' %}
+</div>
+
+<form method="get" class="mb-4 flex flex-col sm:flex-row gap-3 sm:items-end" aria-label="Filters">
+    <label class="text-xs text-ink-light flex-1">Search
+        <input name="q" value="{{ query }}" class="field-input mt-1" placeholder="Invoice number, site or contractor…">
+    </label>
+    <label class="text-xs text-ink-light">Status
+        <select name="status" class="field-input mt-1">
+            <option value="">All</option>
+            <option value="PENDING" {% if status == 'PENDING' %}selected{% endif %}>Pending</option>
+            <option value="APPROVED" {% if status == 'APPROVED' %}selected{% endif %}>Approved</option>
+            <option value="REJECTED" {% if status == 'REJECTED' %}selected{% endif %}>Rejected</option>
+        </select>
+    </label>
+    <button class="px-4 py-2.5 rounded-xl bg-ink text-surface text-sm font-medium hover:bg-primary transition-colors">Apply</button>
+</form>
+
+<section class="bg-card rounded-2xl border border-surface-container overflow-hidden">
+    {% if page_obj %}
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="text-left text-xs uppercase tracking-wider text-ink-light">
+                <tr>
+                    <th class="px-5 py-3">Invoice</th><th class="px-5 py-3">Site</th>
+                    {% if user.role != 'CONTRACTOR' %}<th class="px-5 py-3">Contractor</th>{% endif %}
+                    <th class="px-5 py-3">Period</th><th class="px-5 py-3 text-right">Amount</th><th class="px-5 py-3">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container">
+                {% for inv in page_obj %}
+                <tr class="hover:bg-surface/60">
+                    <td class="px-5 py-3"><a href="{% url 'ops:invoice_detail' inv.pk %}" class="font-medium text-ink hover:text-primary">{{ inv.invoice_number }}</a><div class="text-xs text-ink-light">{{ inv.invoice_date|date:"j M Y" }}</div></td>
+                    <td class="px-5 py-3">{{ inv.site.name }}</td>
+                    {% if user.role != 'CONTRACTOR' %}<td class="px-5 py-3">{{ inv.created_by.username }}</td>{% endif %}
+                    <td class="px-5 py-3 text-ink-light whitespace-nowrap">{{ inv.service_period_start|date:"j M" }} – {{ inv.service_period_end|date:"j M Y" }}</td>
+                    <td class="px-5 py-3 text-right font-semibold tabular-nums">{{ inv.amount|money }}</td>
+                    <td class="px-5 py-3"><span class="pill pill-{{ inv.status|lower }}">{{ inv.status|label }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% include 'ops/partials/pagination.html' %}
+    {% else %}
+    <div class="text-center py-12">
+        <span class="material-symbols-outlined text-ink-light" style="font-size: 32px;" aria-hidden="true">receipt_long</span>
+        <p class="text-sm text-ink-light mt-2">No invoices match.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

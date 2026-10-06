@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views, views_work
+from . import views, views_invoices, views_work
 
 # App namespace - allows us to use 'ops:login', 'ops:dashboard', etc.
 app_name = 'ops'
@@ -24,6 +24,15 @@ urlpatterns = [
     path('work/<uuid:work_id>/', views_work.work_detail_view, name='work_detail'),
     path('completions/', views_work.completions_view, name='completions'),
     path('completions/<uuid:work_id>/', views_work.work_detail_view, name='completion_detail'),
+
+    # Contractor invoices (builder, verification, print)
+    path('invoices/', views_invoices.invoice_list_view, name='invoices'),
+    path('invoices/new/', views_invoices.invoice_create_view, name='invoice_create'),
+    path('invoices/<uuid:pk>/', views_invoices.invoice_detail_view, name='invoice_detail'),
+    path('invoices/<uuid:pk>/edit/', views_invoices.invoice_edit_view, name='invoice_edit'),
+    path('invoices/<uuid:pk>/delete/', views_invoices.invoice_delete_view, name='invoice_delete'),
+    path('invoices/<uuid:pk>/decide/', views_invoices.invoice_decide_view, name='invoice_decide'),
+    path('invoices/<uuid:pk>/print/', views_invoices.invoice_print_view, name='invoice_print'),
 
     # Logout
     path('logout/', views.logout_view, name='logout'),

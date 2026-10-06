@@ -128,3 +128,99 @@ def contractor_summary(user, today=None):
         },
         "earnings": _total(invoices.filter(status="APPROVED")),
     }
+
+
+# --- Invoice verification (brief 3.8) ---------------------------------------
+#
+# The backend's verify endpoint only records approve/reject. These checks
+# compare an invoice against recorded work so the reviewer sees mismatches
+# before deciding. They are advisory and never saved.
+
+FLAG_MESSAGES = {
+    "NO_RECORDED_WORK": "No completed services are recorded for this site and period.",
+    "MISSING_VISITS": "{recorded} of {scheduled} scheduled services were recorded as completed.",
+    "WRONG_CONTRACTOR": "Work at this site in this period was recorded by another contractor.",
+    "QUANTITY_EXCEEDS_WORK": "The invoice bills {billed} services but only {recorded} were recorded.",
+    "DUPLICATE_PERIOD": "Another invoice from this contractor already covers this site and period ({numbers}).",
+}
+
+
+def verify_invoice(invoice):
+    """Return the evidence and flags for one contractor invoice."""
+    period = [invoice.service_period_start, invoice.service_period_end]
+    completions = (
+        CompleteWork.objects.filter(
+            schedule__site=invoice.site,
+            completed_by=invoice.created_by,
+            status="COMPLETED",
+            schedule__scheduled_date__range=period,
+        )
+        .select_related("schedule")
+        .order_by("schedule__scheduled_date")
+    )
+    scheduled = (
+        ServiceSchedule.objects.filter(site=invoice.site, scheduled_date__range=period)
+        .exclude(status="CANCELLED")
+        .select_related("work_completion")
+        .order_by("scheduled_date", "scheduled_time")
+    )
+    others = (
+        CompleteWork.objects.filter(schedule__site=invoice.site, schedule__scheduled_date__range=period)
+        .exclude(completed_by=invoice.created_by)
+        .select_related("completed_by")
+    )
+    overlapping = (
+        ContractorInvoice.objects.filter(
+            site=invoice.site,
+            created_by=invoice.created_by,
+            service_period_start__lte=invoice.service_period_end,
+            service_period_end__gte=invoice.service_period_start,
+        )
+        .exclude(pk=invoice.pk)
+        .exclude(status="REJECTED")
+    )
+
+    recorded = completions.count()
+    scheduled_count = scheduled.count()
+    billed = sum((item.quantity for item in invoice.line_items.all()), Decimal("0"))
+
+    flags = []
+    if recorded == 0:
+        flags.append(("NO_RECORDED_WORK", FLAG_MESSAGES["NO_RECORDED_WORK"]))
+    elif scheduled_count > recorded:
+        flags.append(("MISSING_VISITS", FLAG_MESSAGES["MISSING_VISITS"].format(recorded=recorded, scheduled=scheduled_count)))
+    if others.exists():
+        flags.append(("WRONG_CONTRACTOR", FLAG_MESSAGES["WRONG_CONTRACTOR"]))
+    if billed and billed > recorded:
+        flags.append(("QUANTITY_EXCEEDS_WORK", FLAG_MESSAGES["QUANTITY_EXCEEDS_WORK"].format(
+            billed=billed.normalize(), recorded=recorded)))
+    if overlapping.exists():
+        numbers = ", ".join(overlapping.values_list("invoice_number", flat=True))
+        flags.append(("DUPLICATE_PERIOD", FLAG_MESSAGES["DUPLICATE_PERIOD"].format(numbers=numbers)))
+
+    expected = invoice.site.price * recorded
+    return {
+        "completions": completions,
+        "scheduled": scheduled,
+        "other_work": others,
+        "recorded": recorded,
+        "scheduled_count": scheduled_count,
+        "billed_quantity": billed,
+        "client_value": expected,
+        "flags": flags,
+    }
+
+
+def next_invoice_number(today=None):
+    """Next free INV-YYYY-### number."""
+    year = (today or date.today()).year
+    prefix = f"INV-{year}-"
+    highest = 0
+    # global_objects includes soft-deleted invoices, which still hold their
+    # number in the unique index.
+    numbers = ContractorInvoice.global_objects.filter(invoice_number__startswith=prefix)
+    for number in numbers.values_list("invoice_number", flat=True):
+        tail = number[len(prefix):]
+        if tail.isdigit():
+            highest = max(highest, int(tail))
+    return f"{prefix}{highest + 1:03d}"

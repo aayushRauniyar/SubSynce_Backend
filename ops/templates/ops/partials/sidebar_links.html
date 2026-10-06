@@ -12,9 +12,15 @@
 <a href="{% url 'ops:completions' %}" class="{{ link }} {% nav_class 'completions' 'completion_detail' %}">
     <span class="material-symbols-outlined" aria-hidden="true">task_alt</span><span>Work Completions</span>
 </a>
+<a href="{% url 'ops:invoices' %}" class="{{ link }} {% nav_class 'invoices' 'invoice_detail' %}">
+    <span class="material-symbols-outlined" aria-hidden="true">receipt_long</span><span>Contractor Invoices</span>
+</a>
 {% elif user.role == 'CONTRACTOR' %}
 <a href="{% url 'ops:my_jobs' %}" class="{{ link }} {% nav_class 'my_jobs' 'clock_out' 'work_detail' %}">
     <span class="material-symbols-outlined" aria-hidden="true">work_history</span><span>My Jobs</span>
+</a>
+<a href="{% url 'ops:invoices' %}" class="{{ link }} {% nav_class 'invoices' 'invoice_detail' 'invoice_create' 'invoice_edit' %}">
+    <span class="material-symbols-outlined" aria-hidden="true">receipt_long</span><span>My Invoices</span>
 </a>
 {% endif %}
 {% endwith %}
