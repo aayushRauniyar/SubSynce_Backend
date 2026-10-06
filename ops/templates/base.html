@@ -41,21 +41,33 @@
             theme: {
                 extend: {
                     colors: {
-                        // SubSync brand colors from design.md. Neutrals are CSS
-                        // variables (static/css/app.css) so dark mode can swap them.
+                        // SubSync palette v2. Values live in static/css/app.css as
+                        // CSS variables so the dark theme can swap them.
                         surface: 'rgb(var(--c-surface) / <alpha-value>)',
-                        'surface-container': 'rgb(var(--c-surface-container) / <alpha-value>)',
-                        'surface-container-high': 'rgb(var(--c-surface-container-high) / <alpha-value>)',
-                        card: 'rgb(var(--c-card) / <alpha-value>)',
-                        primary: '#F4842B',
-                        'primary-hover': '#E67520',
-                        'on-primary': '#FFFFFF',
+                        card: 'rgb(var(--c-surface-lowest) / <alpha-value>)',
+                        sidenav: 'rgb(var(--c-surface-low) / <alpha-value>)',
+                        'surface-container': 'rgb(var(--c-surface-c) / <alpha-value>)',
+                        'surface-container-high': 'rgb(var(--c-surface-high) / <alpha-value>)',
+                        greige: 'rgb(var(--c-surface-highest) / <alpha-value>)',
+                        primary: 'rgb(var(--c-primary) / <alpha-value>)',
+                        'primary-hover': 'rgb(var(--c-primary-strong) / <alpha-value>)',
+                        'on-primary': 'rgb(var(--c-on-accent) / <alpha-value>)',
+                        'secondary-container': 'rgb(var(--c-secondary-container) / <alpha-value>)',
+                        'on-secondary-container': 'rgb(var(--c-on-secondary-container) / <alpha-value>)',
                         ink: 'rgb(var(--c-ink) / <alpha-value>)',
+                        'text-2': 'rgb(var(--c-text-2) / <alpha-value>)',
                         'ink-light': 'rgb(var(--c-ink-light) / <alpha-value>)',
-                        success: '#10B981',
-                        warning: '#F59E0B',
-                        error: '#EF4444',
+                        outline: 'rgb(var(--c-outline) / <alpha-value>)',
+                        success: 'rgb(var(--c-success) / <alpha-value>)',
+                        warning: 'rgb(var(--c-warning) / <alpha-value>)',
+                        error: 'rgb(var(--c-error) / <alpha-value>)',
+                        scheduled: 'rgb(var(--c-scheduled) / <alpha-value>)',
+                        completed: 'rgb(var(--c-completed) / <alpha-value>)',
+                        missed: 'rgb(var(--c-missed) / <alpha-value>)',
+                        violet: 'rgb(var(--c-violet) / <alpha-value>)',
                     },
+                    transitionDuration: { DEFAULT: '300ms' },
+                    transitionTimingFunction: { DEFAULT: 'cubic-bezier(0, 0, 0.2, 1)' },
                     fontFamily: {
                         sans: ['Pretendard Variable', 'Pretendard', 'system-ui', 'sans-serif'],
                     },
@@ -75,7 +87,7 @@
     {% if messages %}
     <div class="fixed top-4 right-4 z-50 space-y-2">
         {% for message in messages %}
-        <div class="px-4 py-3 rounded-xl shadow-lg {% if message.tags == 'success' %}bg-success{% elif message.tags == 'error' %}bg-error{% else %}bg-primary{% endif %} text-white">
+        <div class="px-4 py-3 rounded-xl shadow-lg {% if message.tags == 'success' %}bg-success{% elif message.tags == 'error' %}bg-error{% else %}bg-primary{% endif %} text-on-primary">
             {{ message }}
         </div>
         {% endfor %}

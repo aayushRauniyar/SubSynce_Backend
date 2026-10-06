@@ -16,7 +16,7 @@
         root.classList.toggle('dark', dark);
         root.setAttribute('data-theme', theme);
         var meta = document.querySelector('meta[name="theme-color"]');
-        if (meta) meta.setAttribute('content', dark ? '#181817' : '#F5F3F1');
+        if (meta) meta.setAttribute('content', dark ? '#1B1B1A' : '#F5F3F1');
         document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
             var next = ORDER[(ORDER.indexOf(theme) + 1) % ORDER.length];
             btn.setAttribute('aria-label', LABELS[theme] + ' (switch to ' + next + ')');

@@ -9,7 +9,7 @@
     <p class="text-ink-light text-sm mt-1">Every clock-in and clock-out recorded by contractors.</p>
 </div>
 
-<form method="get" class="mb-4 p-4 rounded-2xl bg-card border border-surface-container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end" aria-label="Filters">
+<form method="get" class="mb-4 p-4 card grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end" aria-label="Filters">
     <label class="text-xs text-ink-light lg:col-span-2">Search
         <input name="q" value="{{ query }}" class="field-input mt-1" placeholder="Site, contractor or notes…">
     </label>
@@ -33,7 +33,7 @@
     </div>
 </form>
 
-<section class="bg-card rounded-2xl border border-surface-container overflow-hidden">
+<section class="card  overflow-hidden">
     {% if page_obj %}
     <div class="overflow-x-auto">
         <table class="w-full text-sm">

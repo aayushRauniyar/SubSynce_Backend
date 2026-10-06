@@ -40,7 +40,7 @@
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-    <section class="bg-card rounded-2xl p-5 border border-surface-container lg:col-span-2" aria-labelledby="services-heading">
+    <section class="card p-5  lg:col-span-2" aria-labelledby="services-heading">
         <div class="flex items-center justify-between mb-4">
             <h2 id="services-heading" class="text-base font-semibold text-ink">Scheduled vs Completed</h2>
             <span class="text-sm text-ink-light tabular-nums">{{ summary.services.completed }} of {{ summary.services.total }} done{% if summary.services.completion_rate is not None %} ({{ summary.services.completion_rate|percent }}){% endif %}</span>
@@ -48,10 +48,10 @@
         {% with s=summary.services %}
         <div class="flex h-3 rounded-full overflow-hidden bg-surface-container" role="img" aria-label="{{ s.completed }} completed, {{ s.in_progress }} in progress, {{ s.scheduled }} scheduled, {{ s.missed }} missed, {{ s.cancelled }} cancelled">
             {% if s.total %}
-            <div class="bg-success" style="width: {% widthratio s.completed s.total 100 %}%"></div>
+            <div class="bg-completed" style="width: {% widthratio s.completed s.total 100 %}%"></div>
             <div class="bg-warning" style="width: {% widthratio s.in_progress s.total 100 %}%"></div>
-            <div class="bg-blue-500" style="width: {% widthratio s.scheduled s.total 100 %}%"></div>
-            <div class="bg-error" style="width: {% widthratio s.missed s.total 100 %}%"></div>
+            <div class="bg-scheduled" style="width: {% widthratio s.scheduled s.total 100 %}%"></div>
+            <div class="bg-missed" style="width: {% widthratio s.missed s.total 100 %}%"></div>
             {% endif %}
         </div>
         <dl class="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-4 text-sm">
@@ -64,7 +64,7 @@
         {% endwith %}
     </section>
 
-    <section class="bg-card rounded-2xl p-5 border border-surface-container" aria-labelledby="invoices-heading">
+    <section class="card p-5 " aria-labelledby="invoices-heading">
         <h2 id="invoices-heading" class="text-base font-semibold text-ink mb-4">Invoice Status</h2>
         <p class="text-xs font-semibold uppercase tracking-wider text-ink-light mb-2">Contractor</p>
         <div class="flex flex-wrap gap-2 mb-4">
@@ -80,7 +80,7 @@
         </div>
     </section>
 
-    <section class="bg-card rounded-2xl p-5 border border-surface-container lg:col-span-2" aria-labelledby="today-heading">
+    <section class="card p-5  lg:col-span-2" aria-labelledby="today-heading">
         <h2 id="today-heading" class="text-base font-semibold text-ink mb-4">Today's Schedule</h2>
         {% if today_jobs %}
         <ul class="divide-y divide-surface-container">
@@ -101,7 +101,7 @@
         {% endif %}
     </section>
 
-    <section class="bg-card rounded-2xl p-5 border border-surface-container" aria-labelledby="pending-heading">
+    <section class="card p-5 " aria-labelledby="pending-heading">
         <h2 id="pending-heading" class="text-base font-semibold text-ink mb-4">Waiting for Verification</h2>
         {% if pending_invoices %}
         <ul class="divide-y divide-surface-container">

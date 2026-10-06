@@ -16,7 +16,7 @@
     </div>
     <p class="text-ink-light text-sm mt-1">{{ work.schedule.site.address }}</p>
 
-    <dl class="mt-5 p-5 rounded-2xl bg-card border border-surface-container grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+    <dl class="mt-5 p-5 card grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
         <div><dt class="text-ink-light">Scheduled</dt><dd class="font-medium text-ink">{{ work.schedule.scheduled_date|date:"D j M Y" }}, {{ work.schedule.scheduled_time|time:"g:i A" }}</dd></div>
         <div><dt class="text-ink-light">Check-in</dt><dd class="font-medium text-ink tabular-nums">{{ work.check_in_time|date:"j M, g:i A"|default:"—" }}</dd></div>
         <div><dt class="text-ink-light">Check-out</dt><dd class="font-medium text-ink tabular-nums">{{ work.check_out_time|date:"j M, g:i A"|default:"—" }}</dd></div>
@@ -27,7 +27,7 @@
         <div class="col-span-2 md:col-span-3"><dt class="text-ink-light">Notes</dt><dd class="text-ink whitespace-pre-line">{{ work.completion_notes|default:"No notes." }}</dd></div>
     </dl>
 
-    <section class="mt-4 p-5 rounded-2xl bg-card border border-surface-container" aria-labelledby="photos-heading">
+    <section class="mt-4 p-5 card" aria-labelledby="photos-heading">
         <h2 id="photos-heading" class="text-base font-semibold text-ink mb-3">Photo Evidence</h2>
         {% with photos=work.work_completion_images.all %}
         {% if photos %}

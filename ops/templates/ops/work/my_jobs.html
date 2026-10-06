@@ -22,7 +22,7 @@
 {% endif %}
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-    <section class="bg-card rounded-2xl p-5 border border-surface-container" aria-labelledby="todo-heading">
+    <section class="card p-5 " aria-labelledby="todo-heading">
         <h2 id="todo-heading" class="text-base font-semibold text-ink mb-4">Ready to Start</h2>
         {% if to_do %}
         <ul class="divide-y divide-surface-container">
@@ -43,7 +43,7 @@
         {% endif %}
     </section>
 
-    <section class="bg-card rounded-2xl p-5 border border-surface-container" aria-labelledby="upcoming-heading">
+    <section class="card p-5 " aria-labelledby="upcoming-heading">
         <h2 id="upcoming-heading" class="text-base font-semibold text-ink mb-4">Upcoming</h2>
         {% if upcoming %}
         <ul class="divide-y divide-surface-container">
@@ -60,7 +60,7 @@
     </section>
 </div>
 
-<section class="bg-card rounded-2xl border border-surface-container overflow-hidden" aria-labelledby="history-heading">
+<section class="card  overflow-hidden" aria-labelledby="history-heading">
     <h2 id="history-heading" class="text-base font-semibold text-ink px-5 pt-5 pb-3">History</h2>
     {% if history %}
     <div class="overflow-x-auto">

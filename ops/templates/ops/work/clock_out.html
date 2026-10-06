@@ -10,7 +10,7 @@
     <h1 class="text-2xl font-bold text-ink">Finish Job</h1>
     <p class="text-ink-light text-sm mt-1">{{ work.schedule.site.name }} · {{ work.schedule.site.address }}</p>
 
-    <div class="mt-4 p-4 rounded-2xl bg-card border border-surface-container text-sm grid grid-cols-2 gap-3">
+    <div class="mt-4 p-4 card text-sm grid grid-cols-2 gap-3">
         <div><p class="text-ink-light">Scheduled</p><p class="font-medium text-ink">{{ work.schedule.scheduled_date|date:"D j M" }}, {{ work.schedule.scheduled_time|time:"g:i A" }}</p></div>
         <div><p class="text-ink-light">Clocked in</p><p class="font-medium text-ink">{{ work.check_in_time|date:"j M, g:i A" }}</p></div>
         {% if work.schedule.site.cleaning_instructions %}
@@ -18,7 +18,7 @@
         {% endif %}
     </div>
 
-    <form method="post" enctype="multipart/form-data" class="mt-4 p-5 rounded-2xl bg-card border border-surface-container space-y-4" data-busy-form>
+    <form method="post" enctype="multipart/form-data" class="mt-4 p-5 card space-y-4" data-busy-form>
         {% csrf_token %}
         {% if form.non_field_errors %}
         <div class="px-4 py-3 rounded-xl bg-error/10 text-error text-sm" role="alert">{{ form.non_field_errors|join:" " }}</div>

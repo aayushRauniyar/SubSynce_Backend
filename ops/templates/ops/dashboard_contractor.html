@@ -29,7 +29,7 @@
 {% endif %}
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-    <section class="bg-card rounded-2xl p-5 border border-surface-container" aria-labelledby="today-heading">
+    <section class="card p-5 " aria-labelledby="today-heading">
         <h2 id="today-heading" class="text-base font-semibold text-ink mb-4">Today</h2>
         {% if summary.today %}
         <ul class="divide-y divide-surface-container">
@@ -48,7 +48,7 @@
         {% endif %}
     </section>
 
-    <section class="bg-card rounded-2xl p-5 border border-surface-container" aria-labelledby="upcoming-heading">
+    <section class="card p-5 " aria-labelledby="upcoming-heading">
         <div class="flex items-center justify-between mb-4">
             <h2 id="upcoming-heading" class="text-base font-semibold text-ink">Next 14 Days</h2>
             <a href="{% url 'ops:my_jobs' %}" class="text-sm font-medium text-primary hover:underline">All Jobs</a>

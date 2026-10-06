@@ -33,14 +33,14 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
     <div class="lg:col-span-2 space-y-4">
-        <dl class="p-5 rounded-2xl bg-card border border-surface-container grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <dl class="p-5 card grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div><dt class="text-ink-light">Site</dt><dd class="font-medium text-ink">{{ invoice.site.name }}</dd></div>
             <div><dt class="text-ink-light">Contractor</dt><dd class="font-medium text-ink">{{ invoice.created_by.username }}</dd></div>
             <div><dt class="text-ink-light">Invoice date</dt><dd class="font-medium text-ink">{{ invoice.invoice_date|date:"j M Y" }}</dd></div>
             <div><dt class="text-ink-light">Service period</dt><dd class="font-medium text-ink">{{ invoice.service_period_start|date:"j M" }} – {{ invoice.service_period_end|date:"j M Y" }}</dd></div>
         </dl>
 
-        <section class="rounded-2xl bg-card border border-surface-container overflow-hidden" aria-labelledby="items-heading">
+        <section class="card overflow-hidden" aria-labelledby="items-heading">
             <h2 id="items-heading" class="text-base font-semibold text-ink px-5 pt-5 pb-3">Line Items</h2>
             <table class="w-full text-sm">
                 <thead class="text-left text-xs uppercase tracking-wider text-ink-light">
@@ -58,14 +58,14 @@
         </section>
 
         {% if extra.notes or extra.terms or invoice.remarks %}
-        <section class="p-5 rounded-2xl bg-card border border-surface-container grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        <section class="p-5 card grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div><h2 class="font-semibold text-ink mb-1">Notes</h2><p class="text-ink-light whitespace-pre-line">{{ extra.notes|default:invoice.remarks|default:"—" }}</p></div>
             <div><h2 class="font-semibold text-ink mb-1">Payment terms</h2><p class="text-ink-light whitespace-pre-line">{{ extra.terms|default:"—" }}</p></div>
         </section>
         {% endif %}
 
         {% if check %}
-        <section class="p-5 rounded-2xl bg-card border border-surface-container" aria-labelledby="evidence-heading">
+        <section class="p-5 card" aria-labelledby="evidence-heading">
             <h2 id="evidence-heading" class="text-base font-semibold text-ink mb-1">Recorded Work in This Period</h2>
             <p class="text-sm text-ink-light mb-4">{{ check.recorded }} completed of {{ check.scheduled_count }} scheduled at {{ invoice.site.name }}. At the client price of {{ invoice.site.price|money }}, that work is worth {{ check.client_value|money }}.</p>
             {% if check.scheduled %}
@@ -115,7 +115,7 @@
         {% endif %}
 
         {% if invoice.status == 'PENDING' and check %}
-        <section class="p-5 rounded-2xl bg-card border border-surface-container" aria-labelledby="decide-heading">
+        <section class="p-5 card" aria-labelledby="decide-heading">
             <h2 id="decide-heading" class="text-base font-semibold text-ink mb-3">Decision</h2>
             <form method="post" action="{% url 'ops:invoice_decide' invoice.pk %}" class="space-y-3" id="decision-form">
                 {% csrf_token %}
@@ -125,20 +125,20 @@
                     {% if decision_form.verification_notes.errors %}<p class="text-xs text-error mt-1">{{ decision_form.verification_notes.errors|join:" " }}</p>{% endif %}
                 </div>
                 <div class="flex gap-2">
-                    <button name="decision" value="APPROVED" class="flex-1 px-4 py-2.5 rounded-xl bg-success text-white text-sm font-medium hover:opacity-90"
+                    <button name="decision" value="APPROVED" class="flex-1 px-4 py-2.5 rounded-xl bg-success text-on-primary text-sm font-medium hover:opacity-90"
                             {% if check.flags %}onclick="return confirm('This invoice has {{ check.flags|length }} flag{{ check.flags|length|pluralize }}. Approve anyway?');"{% endif %}>Approve</button>
-                    <button name="decision" value="REJECTED" class="flex-1 px-4 py-2.5 rounded-xl bg-error text-white text-sm font-medium hover:opacity-90">Reject</button>
+                    <button name="decision" value="REJECTED" class="flex-1 px-4 py-2.5 rounded-xl bg-error text-on-primary text-sm font-medium hover:opacity-90">Reject</button>
                 </div>
             </form>
         </section>
         {% elif invoice.status != 'PENDING' %}
-        <section class="p-5 rounded-2xl bg-card border border-surface-container text-sm" aria-labelledby="decided-heading">
+        <section class="p-5 card text-sm" aria-labelledby="decided-heading">
             <h2 id="decided-heading" class="text-base font-semibold text-ink mb-2">{{ invoice.status|label }}</h2>
             <p class="text-ink-light">By {{ invoice.verified_by.username|default:"—" }} on {{ invoice.verified_at|date:"j M Y, g:i A"|default:"—" }}</p>
             {% if invoice.verification_notes %}<p class="mt-3 text-ink whitespace-pre-line">{{ invoice.verification_notes }}</p>{% endif %}
         </section>
         {% else %}
-        <section class="p-5 rounded-2xl bg-card border border-surface-container text-sm">
+        <section class="p-5 card text-sm">
             <p class="text-ink-light">Waiting for the office to verify this invoice.</p>
         </section>
         {% endif %}

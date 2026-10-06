@@ -23,7 +23,7 @@
         <div class="px-4 py-3 rounded-xl bg-error/10 text-error text-sm" role="alert">{{ header.non_field_errors|join:" " }} {{ formset.non_form_errors|join:" " }}</div>
         {% endif %}
 
-        <section class="p-5 rounded-2xl bg-card border border-surface-container" aria-labelledby="details-heading">
+        <section class="p-5 card" aria-labelledby="details-heading">
             <h2 id="details-heading" class="text-base font-semibold text-ink mb-4">Details</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {% for field in header %}{% if field.name != 'notes' and field.name != 'terms' %}
@@ -45,7 +45,7 @@
             </div>
         </section>
 
-        <section class="p-5 rounded-2xl bg-card border border-surface-container" aria-labelledby="items-heading">
+        <section class="p-5 card" aria-labelledby="items-heading">
             <div class="flex items-center justify-between mb-3">
                 <h2 id="items-heading" class="text-base font-semibold text-ink">Line Items</h2>
                 <button type="button" id="add-item" class="inline-flex items-center gap-1 px-3 py-2 rounded-xl border border-surface-container-high text-sm font-medium hover:bg-surface-container">
@@ -81,7 +81,7 @@
             </div>
         </section>
 
-        <section class="p-5 rounded-2xl bg-card border border-surface-container grid grid-cols-1 sm:grid-cols-2 gap-4" aria-label="Notes and terms">
+        <section class="p-5 card grid grid-cols-1 sm:grid-cols-2 gap-4" aria-label="Notes and terms">
             <div>
                 <label for="id_notes" class="block text-sm font-medium text-ink mb-1">Notes</label>
                 <textarea id="id_notes" name="notes" rows="4" maxlength="2000" class="field-input" placeholder="Anything the office should know…">{{ header.notes.value|default:'' }}</textarea>
@@ -94,8 +94,9 @@
     </div>
 
     <aside class="space-y-4">
-        <section class="p-5 rounded-2xl bg-card border border-surface-container lg:sticky lg:top-4" aria-labelledby="summary-heading">
-            <img src="{% static 'images/subsync-logo.svg' %}" alt="SubSync" class="h-9 mb-4 dark:invert dark:hue-rotate-180">
+        <section class="p-5 card lg:sticky lg:top-4" aria-labelledby="summary-heading">
+            <img src="{% static 'images/subsync-logo.svg' %}" alt="SubSync" class="h-9 mb-4 dark:hidden">
+            <img src="{% static 'images/subsync-logo-dark.svg' %}" alt="SubSync" class="h-9 mb-4 hidden dark:block">
             <h2 id="summary-heading" class="text-base font-semibold text-ink mb-3">Summary</h2>
             <dl class="space-y-2 text-sm">
                 <div class="flex justify-between"><dt class="text-ink-light">Lines</dt><dd id="line-count" class="tabular-nums">0</dd></div>
