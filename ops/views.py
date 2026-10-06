@@ -55,6 +55,18 @@ def login_view(request):
     return render(request, 'ops/login.html')
 
 
+def forgot_password_view(request):
+    """
+    Forgot password help page.
+
+    The backend has no self-service reset API and no email is configured,
+    so this page explains that an Owner or Administrator resets the password.
+    """
+    if request.user.is_authenticated:
+        return redirect('ops:dashboard')
+    return render(request, 'ops/forgot_password.html')
+
+
 def logout_view(request):
     """
     Logout view - ends user session and redirects to login

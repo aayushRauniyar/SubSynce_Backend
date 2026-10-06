@@ -7,6 +7,7 @@ app_name = 'ops'
 urlpatterns = [
     # Login page (root URL)
     path('', views.login_view, name='login'),
+    path('forgot-password/', views.forgot_password_view, name='forgot_password'),
     
     # Dashboard (protected - requires login)
     path('dashboard/', views.dashboard_view, name='dashboard'),

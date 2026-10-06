@@ -20,6 +20,21 @@ class LoginTests(TestCase):
         resp = self.client.post("/?next=/completions/", {"username": user.username, "password": PASSWORD})
         self.assertRedirects(resp, "/completions/")
 
+    def test_login_page_links_to_forgot_password(self):
+        resp = self.client.get(reverse("ops:login"))
+        self.assertContains(resp, f'href="{reverse("ops:forgot_password")}"')
+
+    def test_forgot_password_page_explains_reset(self):
+        resp = self.client.get(reverse("ops:forgot_password"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Owner")
+        self.assertContains(resp, "Administrator")
+
+    def test_forgot_password_redirects_signed_in_users(self):
+        user = make_user("CONTRACTOR")
+        login(self.client, user)
+        self.assertRedirects(self.client.get(reverse("ops:forgot_password")), reverse("ops:dashboard"))
+
 
 class DashboardTests(TestCase):
     def setUp(self):
