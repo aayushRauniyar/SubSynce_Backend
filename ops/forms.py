@@ -7,7 +7,7 @@ from django.contrib.auth.password_validation import validate_password
 
 from authuser.model.user import User, UserDetail
 from client.model.clientmanage import Client, Site
-from invoice.model.invoicemanagement import ContractorInvoice
+from invoice.model.invoicemanagement import ClientInvoice, ContractorInvoice
 from ops.models import CompanyProfile
 from schedule.model.cleaningschedule import ServiceSchedule
 
@@ -251,7 +251,11 @@ class ClockOutForm(forms.Form):
 
 # --- Invoice builder ---------------------------------------------------------
 
-class InvoiceHeaderForm(forms.Form):
+class BaseInvoiceHeaderForm(forms.Form):
+    """Number, site, dates, notes and terms shared by both invoice builders."""
+
+    model = None  # the backend invoice model whose numbers must stay unique
+
     invoice_number = forms.CharField(max_length=40)
     site = forms.ModelChoiceField(queryset=Site.objects.none(), empty_label="Choose a site…")
     invoice_date = forms.DateField(initial=_date.today)
@@ -260,15 +264,13 @@ class InvoiceHeaderForm(forms.Form):
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={"rows": 3}), max_length=2000)
     terms = forms.CharField(required=False, widget=forms.Textarea(attrs={"rows": 3}), max_length=2000)
 
-    def __init__(self, *args, contractor, instance=None, **kwargs):
+    def __init__(self, *args, instance=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.instance = instance
-        self.fields["site"].queryset = Site.objects.filter(assigned_contractor=contractor).order_by("name")
-        self.fields["site"].label_from_instance = lambda site: f"{site.name} · {site.address}"
 
     def clean_invoice_number(self):
         number = self.cleaned_data["invoice_number"].strip()
-        taken = ContractorInvoice.global_objects.filter(invoice_number__iexact=number)
+        taken = self.model.global_objects.filter(invoice_number__iexact=number)
         if self.instance is not None:
             taken = taken.exclude(pk=self.instance.pk)
         if taken.exists():
@@ -292,6 +294,30 @@ class InvoiceHeaderForm(forms.Form):
             "service_period_end": today,
             "terms": CompanyProfile.load().default_terms,
         }
+
+
+class InvoiceHeaderForm(BaseInvoiceHeaderForm):
+    model = ContractorInvoice
+
+    def __init__(self, *args, contractor, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["site"].queryset = Site.objects.filter(assigned_contractor=contractor).order_by("name")
+        self.fields["site"].label_from_instance = lambda site: f"{site.name} · {site.address}"
+
+
+class ClientInvoiceForm(BaseInvoiceHeaderForm):
+    """Invoice the company sends to a client. The client always comes from the chosen site."""
+
+    model = ClientInvoice
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["site"].queryset = Site.objects.select_related("client_id").order_by("name")
+        self.fields["site"].label_from_instance = lambda site: f"{site.name} · {client_name(site.client_id)}"
+
+
+def client_name(client):
+    return " ".join(part for part in (client.first_name, client.last_name) if part)
 
 
 class LineItemForm(forms.Form):

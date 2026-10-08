@@ -42,29 +42,30 @@
                 extend: {
                     colors: {
                         // SubSync palette v2. Values live in static/css/app.css as
-                        // CSS variables so the dark theme can swap them.
-                        surface: 'rgb(var(--c-surface) / <alpha-value>)',
-                        card: 'rgb(var(--c-surface-lowest) / <alpha-value>)',
-                        sidenav: 'rgb(var(--c-surface-low) / <alpha-value>)',
-                        'surface-container': 'rgb(var(--c-surface-c) / <alpha-value>)',
-                        'surface-container-high': 'rgb(var(--c-surface-high) / <alpha-value>)',
-                        greige: 'rgb(var(--c-surface-highest) / <alpha-value>)',
-                        primary: 'rgb(var(--c-primary) / <alpha-value>)',
-                        'primary-hover': 'rgb(var(--c-primary-strong) / <alpha-value>)',
-                        'on-primary': 'rgb(var(--c-on-accent) / <alpha-value>)',
-                        'secondary-container': 'rgb(var(--c-secondary-container) / <alpha-value>)',
-                        'on-secondary-container': 'rgb(var(--c-on-secondary-container) / <alpha-value>)',
-                        ink: 'rgb(var(--c-ink) / <alpha-value>)',
-                        'text-2': 'rgb(var(--c-text-2) / <alpha-value>)',
-                        'ink-light': 'rgb(var(--c-ink-light) / <alpha-value>)',
-                        outline: 'rgb(var(--c-outline) / <alpha-value>)',
-                        success: 'rgb(var(--c-success) / <alpha-value>)',
-                        warning: 'rgb(var(--c-warning) / <alpha-value>)',
-                        error: 'rgb(var(--c-error) / <alpha-value>)',
-                        scheduled: 'rgb(var(--c-scheduled) / <alpha-value>)',
-                        completed: 'rgb(var(--c-completed) / <alpha-value>)',
-                        missed: 'rgb(var(--c-missed) / <alpha-value>)',
-                        violet: 'rgb(var(--c-violet) / <alpha-value>)',
+                        // CSS variables so the dark theme can swap them; the fallbacks are the
+                        // light palette, so a missing or stale app.css can't turn colours black.
+                        surface: 'rgb(var(--c-surface, 245 243 241) / <alpha-value>)',
+                        card: 'rgb(var(--c-surface-lowest, 255 255 255) / <alpha-value>)',
+                        sidenav: 'rgb(var(--c-surface-low, 250 249 247) / <alpha-value>)',
+                        'surface-container': 'rgb(var(--c-surface-c, 240 237 232) / <alpha-value>)',
+                        'surface-container-high': 'rgb(var(--c-surface-high, 234 230 224) / <alpha-value>)',
+                        greige: 'rgb(var(--c-surface-highest, 228 223 217) / <alpha-value>)',
+                        primary: 'rgb(var(--c-primary, 244 132 43) / <alpha-value>)',
+                        'primary-hover': 'rgb(var(--c-primary-strong, 217 108 16) / <alpha-value>)',
+                        'on-primary': 'rgb(var(--c-on-accent, 255 255 255) / <alpha-value>)',
+                        'secondary-container': 'rgb(var(--c-secondary-container, 253 227 205) / <alpha-value>)',
+                        'on-secondary-container': 'rgb(var(--c-on-secondary-container, 138 74 16) / <alpha-value>)',
+                        ink: 'rgb(var(--c-ink, 34 34 33) / <alpha-value>)',
+                        'text-2': 'rgb(var(--c-text-2, 61 59 55) / <alpha-value>)',
+                        'ink-light': 'rgb(var(--c-ink-light, 92 89 82) / <alpha-value>)',
+                        outline: 'rgb(var(--c-outline, 138 134 126) / <alpha-value>)',
+                        success: 'rgb(var(--c-success, 14 138 95) / <alpha-value>)',
+                        warning: 'rgb(var(--c-warning, 180 83 9) / <alpha-value>)',
+                        error: 'rgb(var(--c-error, 198 58 47) / <alpha-value>)',
+                        scheduled: 'rgb(var(--c-scheduled, 37 99 235) / <alpha-value>)',
+                        completed: 'rgb(var(--c-completed, 14 138 95) / <alpha-value>)',
+                        missed: 'rgb(var(--c-missed, 217 119 6) / <alpha-value>)',
+                        violet: 'rgb(var(--c-violet, 124 58 237) / <alpha-value>)',
                     },
                     transitionDuration: { DEFAULT: '300ms' },
                     transitionTimingFunction: { DEFAULT: 'cubic-bezier(0, 0, 0.2, 1)' },
@@ -77,7 +78,7 @@
     </script>
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    <link rel="stylesheet" href="{% static 'css/app.css' %}?v=palette-v2">
     
     {% block extra_head %}{% endblock %}
 </head>

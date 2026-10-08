@@ -212,19 +212,37 @@ def verify_invoice(invoice):
     }
 
 
-def next_invoice_number(today=None):
-    """Next free INV-YYYY-### number."""
+def _next_number(model, prefix, today=None):
     year = (today or date.today()).year
-    prefix = f"INV-{year}-"
+    prefix = f"{prefix}-{year}-"
     highest = 0
     # global_objects includes soft-deleted invoices, which still hold their
     # number in the unique index.
-    numbers = ContractorInvoice.global_objects.filter(invoice_number__startswith=prefix)
+    numbers = model.global_objects.filter(invoice_number__startswith=prefix)
     for number in numbers.values_list("invoice_number", flat=True):
         tail = number[len(prefix):]
         if tail.isdigit():
             highest = max(highest, int(tail))
     return f"{prefix}{highest + 1:03d}"
+
+
+def next_invoice_number(today=None):
+    """Next free INV-YYYY-### number for a contractor invoice."""
+    return _next_number(ContractorInvoice, "INV", today)
+
+
+def next_client_invoice_number(today=None):
+    """Next free CINV-YYYY-### number for an invoice sent to a client."""
+    return _next_number(ClientInvoice, "CINV", today)
+
+
+def completed_work_value(site, start, end):
+    """Completed jobs at a site in a period and what they are worth at the site price."""
+    jobs = CompleteWork.objects.filter(
+        status="COMPLETED", schedule__site=site,
+        schedule__scheduled_date__gte=start, schedule__scheduled_date__lte=end,
+    ).count()
+    return {"jobs": jobs, "value": site.price * jobs}
 
 
 # --- Financial reporting (brief 3.9) -----------------------------------------

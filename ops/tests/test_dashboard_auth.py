@@ -83,6 +83,16 @@ class ClientAccessTests(TestCase):
         login(self.client, make_user("OWNER"))
         self.assertEqual(self.client.get(reverse("ops:clients")).status_code, 200)
 
+    def test_client_pages_use_shared_app_shell(self):
+        login(self.client, make_user("OWNER"))
+        for name in ("ops:clients", "ops:client_create"):
+            resp = self.client.get(reverse(name))
+            # The approved Clients / Add Client pages use the shared SubSync sidebar + top bar.
+            self.assertTemplateUsed(resp, "ops/partials/_sidebar.html")
+            self.assertTemplateUsed(resp, "ops/partials/_topbar.html")
+            self.assertContains(resp, reverse("ops:client_invoices"))
+            self.assertContains(resp, reverse("ops:invoices"))
+
     def test_reusing_deleted_clients_phone_shows_error_not_500(self):
         login(self.client, make_user("ADMINISTRATOR"))
         # Fields of the approved Add Client form (one "Full name"; role is set server-side).

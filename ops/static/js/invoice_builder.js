@@ -58,6 +58,31 @@
 
     list.addEventListener('input', recalc);
 
+    // Client invoices: show who is billed and suggest the site's price.
+    var sitePicker = form.querySelector('[data-site-picker]');
+    function showBillTo(suggestPrice) {
+        var opt = sitePicker.options[sitePicker.selectedIndex];
+        var picked = opt && opt.value;
+        document.getElementById('bill-to-name').textContent = picked ? opt.dataset.client.trim() : 'Choose a site';
+        document.getElementById('bill-to-contact').textContent = picked
+            ? [opt.dataset.email, opt.dataset.phone].filter(Boolean).join(' · ') : '';
+        document.getElementById('bill-to-address').textContent = picked ? opt.dataset.address : '';
+        if (!picked || !suggestPrice) return;
+        // Only fill a single untouched row, never overwrite what was typed.
+        var rows = list.querySelectorAll('.item-row');
+        var price = rows.length === 1 && rows[0].querySelector('[name$="-unit_price"]');
+        var desc = rows.length === 1 && rows[0].querySelector('[name$="-description"]');
+        if (price && !price.value) {
+            price.value = opt.dataset.price;
+            if (!desc.value) desc.value = 'Cleaning services · ' + opt.textContent.split(' · ')[0].trim();
+            recalc();
+        }
+    }
+    if (sitePicker) {
+        sitePicker.addEventListener('change', function () { showBillTo(true); });
+        showBillTo(false);
+    }
+
     form.addEventListener('submit', function () {
         var btn = form.querySelector('button:not([type="button"])');
         btn.disabled = true;

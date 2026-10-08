@@ -37,9 +37,15 @@
             <a href="{% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}{% url 'ops:schedules' %}{% else %}#{% endif %}" class="{{ item }} {% if active == 'schedules' %}{{ on }}{% else %}{{ off }}{% endif %}">
                 <span class="material-symbols-outlined">event</span><span>Schedules</span>
             </a>
-            <a href="{% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}{% url 'ops:invoices' %}{% else %}#{% endif %}" class="{{ item }} {% if active == 'invoices' %}{{ on }}{% else %}{{ off }}{% endif %}">
-                <span class="material-symbols-outlined">receipt_long</span><span>Invoices</span>
+            {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}
+            <!-- Client invoices (billed to clients) and contractor invoices (submitted by contractors) are separate -->
+            <a href="{% url 'ops:client_invoices' %}" class="{{ item }} {% if active == 'client_invoices' %}{{ on }}{% else %}{{ off }}{% endif %}">
+                <span class="material-symbols-outlined">request_quote</span><span>Client Invoices</span>
             </a>
+            <a href="{% url 'ops:invoices' %}" class="{{ item }} {% if active == 'invoices' %}{{ on }}{% else %}{{ off }}{% endif %}">
+                <span class="material-symbols-outlined">receipt_long</span><span>Contractor Invoices</span>
+            </a>
+            {% endif %}
             <a href="{% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}{% url 'ops:profitability' %}{% else %}#{% endif %}" class="{{ item }} {% if active == 'reports' %}{{ on }}{% else %}{{ off }}{% endif %}">
                 <span class="material-symbols-outlined">bar_chart</span><span>Reports</span>
             </a>
