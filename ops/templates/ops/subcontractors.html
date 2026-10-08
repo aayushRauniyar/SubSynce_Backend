@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Subcontractors - SubSync{% endblock %}
+
+{% block content %}
+<div class="flex h-screen overflow-hidden">
+    {% include 'ops/partials/_sidebar.html' with active='subcontractors' %}
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        {% include 'ops/partials/_topbar.html' %}
+
+        <!-- Page Content -->
+        <main class="flex-1 overflow-y-auto">
+            <div class="w-full px-4 lg:px-6 py-6">
+                <!-- Page Header -->
+                <div class="mb-5">
+                    <h1 class="text-2xl font-bold text-ink">Subcontractors</h1>
+                    <p class="text-ink-light text-sm mt-1">View all subcontractor accounts and their assigned sites.</p>
+                </div>
+
+                <!-- Search -->
+                <form method="get" class="mb-4">
+                    <div class="relative w-full sm:max-w-sm">
+                        <div class="absolute left-3 top-1/2 -translate-y-1/2 text-ink-light">
+                            <span class="material-symbols-outlined" style="font-size: 18px;">search</span>
+                        </div>
+                        <input
+                            type="text"
+                            name="q"
+                            value="{{ query }}"
+                            placeholder="Search by name, username, email or phone..."
+                            class="w-full h-10 pl-9 pr-4 rounded-xl bg-white border border-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm"
+                        >
+                    </div>
+                </form>
+
+                <!-- Subcontractors Table -->
+                <div class="bg-white rounded-2xl border border-surface-container overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[720px] text-sm">
+                            <thead>
+                                <tr class="bg-primary text-on-primary text-left">
+                                    <th class="px-6 py-3.5 font-semibold">Name</th>
+                                    <th class="px-6 py-3.5 font-semibold">Email / Username</th>
+                                    <th class="px-6 py-3.5 font-semibold">Phone</th>
+                                    <th class="px-6 py-3.5 font-semibold">Assigned Sites</th>
+                                    <th class="px-6 py-3.5 font-semibold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for contractor in page_obj %}
+                                {% with detail=contractor.user_detail %}
+                                <tr class="border-b border-surface-container last:border-0 hover:bg-surface/60">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold shrink-0
+                                                {% cycle 'bg-primary/10 text-primary' 'bg-success/10 text-success' 'bg-warning/10 text-warning' 'bg-error/10 text-error' as avatar_color %}">
+                                                {% if detail and detail.first_name %}{{ detail.first_name|first|upper }}{{ detail.last_name|default:''|first|upper }}{% else %}{{ contractor.username|first|upper }}{% endif %}
+                                            </div>
+                                            <span class="font-medium text-ink">
+                                                {% if detail and detail.first_name %}{{ detail.first_name }} {{ detail.last_name|default:'' }}{% else %}&mdash;{% endif %}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-ink">{{ contractor.email|default:"—" }}</div>
+                                        <div class="text-xs text-ink-light">@{{ contractor.username }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 text-ink-light">{{ detail.phone|default:"—" }}</td>
+                                    <td class="px-6 py-4 text-ink-light">{{ contractor.site_count }}</td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center justify-end gap-2">
+                                            <button type="button"
+                                                    title="View"
+                                                    onclick="openViewModal('{% if detail and detail.first_name %}{{ detail.first_name|escapejs }} {{ detail.last_name|default:''|escapejs }}{% else %}—{% endif %}', '{{ contractor.username|escapejs }}', '{{ contractor.email|default:''|escapejs }}', '{{ detail.phone|default:''|escapejs }}', {{ contractor.site_count }})"
+                                                    class="p-2 rounded-lg border border-surface-container-high hover:bg-surface-container transition-colors">
+                                                <span class="material-symbols-outlined text-ink-light" style="font-size: 18px;">visibility</span>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endwith %}
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="px-6 py-12 text-center text-ink-light">
+                                        {% if query %}No subcontractors match "{{ query }}".{% else %}No subcontractor accounts yet.{% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if page_obj.paginator.num_pages > 1 %}
+                    <div class="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-t border-surface-container">
+                        <p class="text-sm text-ink-light">
+                            Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ total_contractors }} subcontractors
+                        </p>
+                        <div class="flex items-center gap-1.5">
+                            {% if page_obj.has_previous %}
+                            <a href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.previous_page_number }}"
+                               class="w-8 h-8 flex items-center justify-center rounded-lg border border-surface-container-high hover:bg-surface-container text-ink-light">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">chevron_left</span>
+                            </a>
+                            {% endif %}
+                            {% for num in page_obj.paginator.page_range %}
+                            <a href="?{% if query %}q={{ query }}&{% endif %}page={{ num }}"
+                               class="w-8 h-8 flex items-center justify-center rounded-lg text-sm {% if num == page_obj.number %}bg-primary text-on-primary{% else %}border border-surface-container-high hover:bg-surface-container text-ink-light{% endif %}">
+                                {{ num }}
+                            </a>
+                            {% endfor %}
+                            {% if page_obj.has_next %}
+                            <a href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.next_page_number }}"
+                               class="w-8 h-8 flex items-center justify-center rounded-lg border border-surface-container-high hover:bg-surface-container text-ink-light">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">chevron_right</span>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% elif total_contractors %}
+                    <div class="px-6 py-4 border-t border-surface-container">
+                        <p class="text-sm text-ink-light">Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ total_contractors }} subcontractors</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- View Subcontractor Modal -->
+<div id="view-modal" class="hidden fixed inset-0 z-40 items-center justify-center bg-ink/40 px-4" onclick="if (event.target === this) closeViewModal();">
+    <div class="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6">
+        <div class="flex items-center justify-between mb-5">
+            <h2 class="text-lg font-semibold text-ink">Subcontractor Details</h2>
+            <button type="button" onclick="closeViewModal()" class="p-1.5 rounded-lg hover:bg-surface-container">
+                <span class="material-symbols-outlined text-ink-light">close</span>
+            </button>
+        </div>
+        <div class="space-y-4 text-sm">
+            <div>
+                <p class="text-ink-light">Name</p>
+                <p id="view-name" class="font-medium text-ink"></p>
+            </div>
+            <div>
+                <p class="text-ink-light">Username</p>
+                <p id="view-username" class="font-medium text-ink"></p>
+            </div>
+            <div>
+                <p class="text-ink-light">Email</p>
+                <p id="view-email" class="font-medium text-ink"></p>
+            </div>
+            <div>
+                <p class="text-ink-light">Phone</p>
+                <p id="view-phone" class="font-medium text-ink"></p>
+            </div>
+            <div>
+                <p class="text-ink-light">Assigned Sites</p>
+                <p id="view-sites" class="font-medium text-ink"></p>
+            </div>
+        </div>
+        <div class="flex justify-end mt-6">
+            <button type="button" onclick="closeViewModal()"
+                    class="px-4 py-2.5 rounded-xl border border-surface-container-high text-sm font-medium text-ink hover:bg-surface-container transition-colors">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showModal(el) {
+        closeViewModal();
+        el.classList.remove('hidden');
+        el.classList.add('flex');
+    }
+
+    function hideModal(el) {
+        el.classList.remove('flex');
+        el.classList.add('hidden');
+    }
+
+    function openViewModal(name, username, email, phone, sitesCount) {
+        document.getElementById('view-name').textContent = name || '—';
+        document.getElementById('view-username').textContent = '@' + username;
+        document.getElementById('view-email').textContent = email || '—';
+        document.getElementById('view-phone').textContent = phone || '—';
+        document.getElementById('view-sites').textContent = sitesCount;
+        showModal(document.getElementById('view-modal'));
+    }
+
+    function closeViewModal() {
+        hideModal(document.getElementById('view-modal'));
+    }
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            closeViewModal();
+        }
+    });
+</script>
+{% endblock %}

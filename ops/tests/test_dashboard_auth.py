@@ -68,7 +68,8 @@ class DashboardTests(TestCase):
     def test_contractor_gets_own_dashboard(self):
         login(self.client, self.alex)
         resp = self.client.get(reverse("ops:dashboard"))
-        self.assertTemplateUsed(resp, "ops/dashboard_contractor.html")
+        # Contractors get the approved Subcontractor Portal (with Check In / Check Out).
+        self.assertTemplateUsed(resp, "ops/subcontractor_portal.html")
         self.assertEqual(resp.context["summary"]["earnings"], Decimal("1280.00"))
         self.assertNotIn("revenue", resp.context["summary"])
 
@@ -86,13 +87,16 @@ class ClientAccessTests(TestCase):
         login(self.client, make_user("OWNER"))
         for name in ("ops:clients", "ops:client_create"):
             resp = self.client.get(reverse(name))
-            self.assertTemplateUsed(resp, "ops/layouts/app.html")
-            self.assertContains(resp, "Work Completions")
-            self.assertNotContains(resp, "<span>Help</span>", html=False)
+            # The approved Clients / Add Client pages use the shared SubSync sidebar + top bar.
+            self.assertTemplateUsed(resp, "ops/partials/_sidebar.html")
+            self.assertTemplateUsed(resp, "ops/partials/_topbar.html")
+            self.assertContains(resp, reverse("ops:client_invoices"))
+            self.assertContains(resp, reverse("ops:invoices"))
 
     def test_reusing_deleted_clients_phone_shows_error_not_500(self):
         login(self.client, make_user("ADMINISTRATOR"))
-        data = {"first_name": "Tech", "phone": "0400111222", "email": "a@x.com", "role": "ADMINISTRATOR", "status": "ACTIVE"}
+        # Fields of the approved Add Client form (one "Full name"; role is set server-side).
+        data = {"full_name": "Tech", "phone": "0400111222", "email": "a@x.com", "status": "ACTIVE"}
         self.client.post(reverse("ops:client_create"), data)
         from client.model.clientmanage import Client
         Client.objects.get(phone="0400111222").delete()

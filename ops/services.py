@@ -56,7 +56,7 @@ def admin_summary(start=None, end=None):
     return {
         "clients": Client.objects.count(),
         "sites": Site.objects.count(),
-        "contractors": User.objects.filter(role="CONTRACTOR").count(),
+        "contractors": User.objects.filter(role="CONTRACTOR", deleted_at__isnull=True).count(),
         "services": {
             "total": services_total,
             # Clock-out doesn't change the schedule's own status, so a job

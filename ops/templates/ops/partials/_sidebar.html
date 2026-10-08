@@ -1,0 +1,75 @@
+{# Shared sidebar. Pass `active` (e.g. 'clients') to highlight the current item. #}
+{# Static 256px column on desktop; off-canvas drawer below lg (toggled by the script in base.html). #}
+{% with on='bg-primary/10 text-primary' off='text-ink-light hover:bg-surface-container hover:text-ink transition-colors' item='flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium' %}
+<div data-sidebar-overlay class="hidden fixed inset-0 z-40 bg-ink/40 lg:hidden"></div>
+<aside data-sidebar class="fixed inset-y-0 left-0 z-50 flex flex-col w-64 shrink-0 bg-white border-r border-surface-container-high -translate-x-full transition-transform duration-200 lg:static lg:translate-x-0 lg:transition-none">
+    <div class="flex items-center gap-3 px-6 py-5 border-b border-surface-container-high">
+        <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-on-primary" style="font-size: 20px;">cleaning_services</span>
+        </div>
+        <span class="text-lg font-semibold text-ink">SubSync</span>
+        <button type="button" data-sidebar-close aria-label="Close menu" class="lg:hidden ml-auto p-1.5 rounded-lg text-ink-light hover:bg-surface-container">
+            <span class="material-symbols-outlined" style="font-size: 20px;">close</span>
+        </button>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto px-3 py-4">
+        <div class="space-y-1">
+            <a href="{% url 'ops:dashboard' %}" class="{{ item }} {% if active == 'dashboard' %}{{ on }}{% else %}{{ off }}{% endif %}">
+                <span class="material-symbols-outlined">dashboard</span><span>Dashboard</span>
+            </a>
+            <a href="{% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}{% url 'ops:calendar' %}{% else %}#{% endif %}" class="{{ item }} {% if active == 'calendar' %}{{ on }}{% else %}{{ off }}{% endif %}">
+                <span class="material-symbols-outlined">calendar_month</span><span>Calendar</span>
+            </a>
+            {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}
+            <a href="{% url 'ops:clients' %}" class="{{ item }} {% if active == 'clients' %}{{ on }}{% else %}{{ off }}{% endif %}">
+                <span class="material-symbols-outlined">person</span><span>Clients</span>
+            </a>
+            {% endif %}
+            {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}
+            <a href="{% url 'ops:sites' %}" class="{{ item }} {% if active == 'sites' %}{{ on }}{% else %}{{ off }}{% endif %}">
+                <span class="material-symbols-outlined">location_on</span><span>Sites</span>
+            </a>
+            {% endif %}
+            <a href="{% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}{% url 'ops:subcontractors' %}{% else %}#{% endif %}" class="{{ item }} {% if active == 'subcontractors' %}{{ on }}{% else %}{{ off }}{% endif %}">
+                <span class="material-symbols-outlined">engineering</span><span>Subcontractors</span>
+            </a>
+            <a href="{% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}{% url 'ops:schedules' %}{% else %}#{% endif %}" class="{{ item }} {% if active == 'schedules' %}{{ on }}{% else %}{{ off }}{% endif %}">
+                <span class="material-symbols-outlined">event</span><span>Schedules</span>
+            </a>
+            {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}
+            <!-- Client invoices (billed to clients) and contractor invoices (submitted by contractors) are separate -->
+            <a href="{% url 'ops:client_invoices' %}" class="{{ item }} {% if active == 'client_invoices' %}{{ on }}{% else %}{{ off }}{% endif %}">
+                <span class="material-symbols-outlined">request_quote</span><span>Client Invoices</span>
+            </a>
+            <a href="{% url 'ops:invoices' %}" class="{{ item }} {% if active == 'invoices' %}{{ on }}{% else %}{{ off }}{% endif %}">
+                <span class="material-symbols-outlined">receipt_long</span><span>Contractor Invoices</span>
+            </a>
+            {% endif %}
+            <a href="{% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}{% url 'ops:profitability' %}{% else %}#{% endif %}" class="{{ item }} {% if active == 'reports' %}{{ on }}{% else %}{{ off }}{% endif %}">
+                <span class="material-symbols-outlined">bar_chart</span><span>Reports</span>
+            </a>
+        </div>
+
+        <div class="my-3 border-t border-dashed border-surface-container-high"></div>
+
+        <div class="space-y-1">
+            {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}
+            <a href="{% url 'ops:users' %}" class="{{ item }} {% if active == 'users' %}{{ on }}{% else %}{{ off }}{% endif %}">
+                <span class="material-symbols-outlined">group</span><span>Users</span>
+            </a>
+            {% endif %}
+            <!-- Company settings are Owner-only -->
+            <a href="{% if user.role == 'OWNER' %}{% url 'ops:company_settings' %}{% else %}#{% endif %}" class="{{ item }} {% if active == 'settings' %}{{ on }}{% else %}{{ off }}{% endif %}">
+                <span class="material-symbols-outlined">settings</span><span>Settings</span>
+            </a>
+            <a href="#" class="{{ item }} {{ off }}">
+                <span class="material-symbols-outlined">help</span><span>Help</span>
+            </a>
+            <a href="{% url 'ops:logout' %}" class="{{ item }} {{ off }}">
+                <span class="material-symbols-outlined">logout</span><span>Logout</span>
+            </a>
+        </div>
+    </nav>
+</aside>
+{% endwith %}
