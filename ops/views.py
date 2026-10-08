@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.db.models import Count, Q, Sum
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme, urlencode
@@ -20,6 +20,8 @@ from authuser.model.user import User
 from schedule.model.cleaningschedule import ServiceSchedule
 from work.model.workcomplete import CompleteWork, WorkCompleteImage
 from invoice.model.invoicemanagement import ClientInvoice, ContractorInvoice
+from ops import services
+from ops.access import STAFF_ROLES, forbidden, is_contractor, is_staff_user
 from ops.forms import MANAGEABLE_ROLES, clean_evidence_photos, ClientCreateForm, ClientForm, ScheduleForm, ScheduleStatusForm, SiteForm, UserForm
 
 
@@ -184,11 +186,13 @@ def login_view(request):
                 request.session.set_expiry(0)
             messages.success(request, f'Welcome back, {user.username}!')
 
-            # Redirect to dashboard (or a safe local next page if specified)
-            next_url = request.GET.get('next', '')
-            if not url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
-                next_url = 'ops:dashboard'
-            return redirect(next_url)
+            # Redirect to dashboard (or next page if specified)
+            next_url = request.GET.get('next')
+            if next_url and url_has_allowed_host_and_scheme(
+                next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+            ):
+                return redirect(next_url)
+            return redirect('ops:dashboard')
         else:
             # Login failed
             messages.error(request, 'Invalid email/username or password.')
@@ -213,18 +217,30 @@ def dashboard_view(request):
     """
     Dashboard view - shows overview of the system.
 
-    Branches by role: CONTRACTOR users get the Subcontractor Portal;
-    everyone else (ADMINISTRATOR, OWNER) gets the admin dashboard below,
-    unchanged. All figures are computed directly from the ORM using the same
-    counting/filtering patterns as dashboard/api/views/admin_views.py
-    (which can't be reused directly here since it's a JWT-authenticated
-    DRF endpoint and this is a session-authenticated server-rendered page).
+    Branches by role: CONTRACTOR users get the Subcontractor Portal; staff
+    (ADMINISTRATOR, OWNER) get the admin dashboard; anyone else gets a 403.
+    Staff figures come from the ORM (same patterns as the dashboard API), plus
+    the shared services.admin_summary, which ?start=YYYY-MM-DD&end=YYYY-MM-DD narrows.
     """
     user = request.user
 
-    if user.role == 'CONTRACTOR':
-        context = {'user': user, 'full_name': _full_name(user), **_build_contractor_portal_context(request)}
+    if is_contractor(user):
+        context = {
+            'user': user,
+            'full_name': _full_name(user),
+            'summary': services.contractor_summary(user),
+            **_build_contractor_portal_context(request),
+        }
         return render(request, 'ops/subcontractor_portal.html', context)
+    if not is_staff_user(user):
+        return forbidden(request)
+
+    start = services.parse_date(request.GET.get('start'))
+    end = services.parse_date(request.GET.get('end'))
+    range_error = None
+    if start and end and start > end:
+        range_error = 'Start date must be on or before the end date.'
+        start = end = None
 
     today = timezone.localdate()
 
@@ -301,13 +317,24 @@ def dashboard_view(request):
             'profit': month_profit,
             'margin': month_margin,
         },
+        'summary': services.admin_summary(start, end),
+        'today_jobs': services.todays_schedule(),
+        'pending_invoices': (
+            ContractorInvoice.objects.filter(status='PENDING')
+            .select_related('site', 'created_by')
+            .order_by('invoice_date')[:5]
+        ),
+        'start': start,
+        'end': end,
+        'range_error': range_error,
     }
 
     return render(request, 'ops/dashboard.html', context)
 
 
 def _is_admin(request):
-    return request.user.is_authenticated and request.user.role == 'ADMINISTRATOR'
+    # The Owner is the superuser, so they get every administrator screen too.
+    return request.user.is_authenticated and request.user.role in STAFF_ROLES
 
 
 @login_required
@@ -438,7 +465,13 @@ def client_create_view(request):
         if email and Client.objects.filter(email=email).exists():
             form.add_error('email', 'A client with this email already exists.')
             return render(request, 'ops/client_add.html', {'user': request.user, 'form': form})
-        client = form.save()
+        try:
+            client = form.save()
+        except IntegrityError:
+            # Deleted clients are soft-deleted, so their phone number still
+            # occupies the unique index even though the form can't see them.
+            form.add_error('phone', 'This phone number belongs to a removed client. Use a different number.')
+            return render(request, 'ops/client_add.html', {'user': request.user, 'form': form})
         messages.success(request, 'Client added successfully.')
         return redirect('ops:client_detail', pk=client.pk)
 
@@ -464,7 +497,11 @@ def client_update_view(request, pk):
         if phone and Client.objects.filter(phone=phone).exclude(id=pk).exists():
             messages.error(request, 'A client with this phone number already exists.')
             return _redirect_back(request, 'ops:clients')
-        form.save()
+        try:
+            form.save()
+        except IntegrityError:
+            messages.error(request, 'This phone number belongs to a removed client. Use a different number.')
+            return _redirect_back(request, 'ops:clients')
         messages.success(request, 'Client updated successfully.')
     else:
         messages.error(request, 'Could not update client. Please check the details and try again.')

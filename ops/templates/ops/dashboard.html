@@ -22,23 +22,27 @@
                         <p class="text-ink-light text-sm mt-1">{{ today|date:"jS F Y" }}</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button type="button" disabled title="Calendar page isn't built yet"
-                                class="flex items-center gap-1.5 h-10 px-4 rounded-xl bg-white border border-surface-container-high text-sm font-medium text-ink-light cursor-not-allowed">
+                        <a href="{% url 'ops:calendar' %}"
+                           class="flex items-center gap-1.5 h-10 px-4 rounded-xl bg-white border border-surface-container-high text-sm font-medium text-ink hover:bg-surface-container transition-colors">
                             <span class="material-symbols-outlined" style="font-size: 16px;">calendar_month</span>
                             Calendar
-                        </button>
-                        <button type="button" disabled title="Invoice creation isn't built yet"
+                        </a>
+                        <!-- Invoices are created by contractors (invoice builder); staff review them -->
+                        <button type="button" disabled title="Invoices are created by contractors in the invoice builder"
                                 class="flex items-center gap-1.5 h-10 px-4 rounded-xl bg-primary/60 text-on-primary text-sm font-medium cursor-not-allowed">
                             <span class="material-symbols-outlined" style="font-size: 16px;">add</span>
                             New Invoice
                         </button>
                     </div>
                 </div>
+                {% if range_error %}
+                <p class="mb-4 px-4 py-3 rounded-xl bg-error/10 text-error text-sm" role="alert">{{ range_error }}</p>
+                {% endif %}
 
                 <!-- Stats Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
                     <!-- Clients -->
-                    {% if user.role == 'ADMINISTRATOR' %}<a href="{% url 'ops:clients' %}" aria-label="View clients" class="bg-white rounded-2xl p-5 border border-surface-container shadow-sm min-h-[143px] flex flex-col justify-between block hover:shadow-md transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">{% else %}<div class="bg-white rounded-2xl p-5 border border-surface-container shadow-sm min-h-[143px] flex flex-col justify-between">{% endif %}
+                    {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}<a href="{% url 'ops:clients' %}" aria-label="View clients" class="bg-white rounded-2xl p-5 border border-surface-container shadow-sm min-h-[143px] flex flex-col justify-between block hover:shadow-md transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">{% else %}<div class="bg-white rounded-2xl p-5 border border-surface-container shadow-sm min-h-[143px] flex flex-col justify-between">{% endif %}
                         <div class="flex items-center justify-between">
                             <p class="text-sm font-medium text-ink-light">Clients</p>
                             <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -52,10 +56,10 @@
                                 Total clients
                             </p>
                         </div>
-                    {% if user.role == 'ADMINISTRATOR' %}</a>{% else %}</div>{% endif %}
+                    {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}</a>{% else %}</div>{% endif %}
 
                     <!-- Sites -->
-                    {% if user.role == 'ADMINISTRATOR' %}<a href="{% url 'ops:sites' %}" aria-label="View sites" class="bg-white rounded-2xl p-5 border border-surface-container shadow-sm min-h-[143px] flex flex-col justify-between block hover:shadow-md transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">{% else %}<div class="bg-white rounded-2xl p-5 border border-surface-container shadow-sm min-h-[143px] flex flex-col justify-between">{% endif %}
+                    {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}<a href="{% url 'ops:sites' %}" aria-label="View sites" class="bg-white rounded-2xl p-5 border border-surface-container shadow-sm min-h-[143px] flex flex-col justify-between block hover:shadow-md transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">{% else %}<div class="bg-white rounded-2xl p-5 border border-surface-container shadow-sm min-h-[143px] flex flex-col justify-between">{% endif %}
                         <div class="flex items-center justify-between">
                             <p class="text-sm font-medium text-ink-light">Sites</p>
                             <div class="w-10 h-10 rounded-xl bg-warning/10 flex items-center justify-center">
@@ -69,10 +73,10 @@
                                 Active sites
                             </p>
                         </div>
-                    {% if user.role == 'ADMINISTRATOR' %}</a>{% else %}</div>{% endif %}
+                    {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}</a>{% else %}</div>{% endif %}
 
                     <!-- Subcontractors -->
-                    {% if user.role == 'ADMINISTRATOR' %}<a href="{% url 'ops:subcontractors' %}" aria-label="View subcontractors" class="bg-white rounded-2xl p-5 border border-surface-container shadow-sm min-h-[143px] flex flex-col justify-between block hover:shadow-md transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">{% else %}<div class="bg-white rounded-2xl p-5 border border-surface-container shadow-sm min-h-[143px] flex flex-col justify-between">{% endif %}
+                    {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}<a href="{% url 'ops:subcontractors' %}" aria-label="View subcontractors" class="bg-white rounded-2xl p-5 border border-surface-container shadow-sm min-h-[143px] flex flex-col justify-between block hover:shadow-md transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">{% else %}<div class="bg-white rounded-2xl p-5 border border-surface-container shadow-sm min-h-[143px] flex flex-col justify-between">{% endif %}
                         <div class="flex items-center justify-between">
                             <p class="text-sm font-medium text-ink-light">Subcontractors</p>
                             <div class="w-10 h-10 rounded-xl bg-[#F5EEE0] flex items-center justify-center">
@@ -86,7 +90,7 @@
                                 Active contractors
                             </p>
                         </div>
-                    {% if user.role == 'ADMINISTRATOR' %}</a>{% else %}</div>{% endif %}
+                    {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}</a>{% else %}</div>{% endif %}
 
                     <!-- Jobs this week -->
                     <div class="bg-white rounded-2xl p-5 border border-surface-container shadow-sm min-h-[143px] flex flex-col justify-between">
@@ -169,8 +173,8 @@
                                     </div>
                                     <h2 class="text-sm font-semibold text-ink">Invoices</h2>
                                 </div>
-                                <button type="button" disabled title="Full invoice list isn't built yet"
-                                        class="text-xs font-medium text-ink-light cursor-not-allowed">View all</button>
+                                <a href="{% url 'ops:invoices' %}"
+                                   class="text-xs font-medium text-ink-light hover:text-primary transition-colors">View all</a>
                             </div>
                             <div class="flex items-center justify-between text-sm py-1.5">
                                 <span class="text-ink-light">Pending</span>
@@ -228,11 +232,11 @@
                             <div class="w-full h-1.5 rounded-full bg-surface-container overflow-hidden">
                                 <div class="h-full bg-success rounded-full" style="width: {{ month_financials.margin }}%;"></div>
                             </div>
-                            <button type="button" disabled title="Profitability report isn't built yet"
-                                    class="flex items-center gap-1 text-sm font-medium text-primary/60 cursor-not-allowed mt-3">
+                            <a href="{% url 'ops:profitability' %}"
+                               class="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline mt-3">
                                 View profitability report
                                 <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>

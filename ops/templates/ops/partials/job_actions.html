@@ -1,0 +1,19 @@
+{% comment %}Contractor actions for one schedule `job` (needs today in context).{% endcomment %}
+{% with work=job.work_completion %}
+{% if work and work.status == 'IN_PROGRESS' %}
+    <a href="{% url 'ops:clock_out' work.id %}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-on-primary text-sm font-medium hover:bg-primary-hover transition-colors">
+        <span class="material-symbols-outlined" style="font-size: 18px;" aria-hidden="true">logout</span>Clock Out
+    </a>
+{% elif work %}
+    <a href="{% url 'ops:work_detail' work.id %}" class="text-sm font-medium text-primary hover:underline">View Record</a>
+{% elif job.status == 'SCHEDULED' and job.scheduled_date <= today %}
+    <form method="post" action="{% url 'ops:clock_in' job.id %}">
+        {% csrf_token %}
+        <button class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-ink text-surface text-sm font-medium hover:bg-primary transition-colors">
+            <span class="material-symbols-outlined" style="font-size: 18px;" aria-hidden="true">login</span>Clock In
+        </button>
+    </form>
+{% else %}
+    <span class="pill pill-{{ job.status|lower }}">{{ job.status|title }}</span>
+{% endif %}
+{% endwith %}

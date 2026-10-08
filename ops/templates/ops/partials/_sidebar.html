@@ -18,29 +18,29 @@
             <a href="{% url 'ops:dashboard' %}" class="{{ item }} {% if active == 'dashboard' %}{{ on }}{% else %}{{ off }}{% endif %}">
                 <span class="material-symbols-outlined">dashboard</span><span>Dashboard</span>
             </a>
-            <a href="#" class="{{ item }} {{ off }}">
+            <a href="{% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}{% url 'ops:calendar' %}{% else %}#{% endif %}" class="{{ item }} {% if active == 'calendar' %}{{ on }}{% else %}{{ off }}{% endif %}">
                 <span class="material-symbols-outlined">calendar_month</span><span>Calendar</span>
             </a>
-            {% if user.role == 'ADMINISTRATOR' %}
+            {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}
             <a href="{% url 'ops:clients' %}" class="{{ item }} {% if active == 'clients' %}{{ on }}{% else %}{{ off }}{% endif %}">
                 <span class="material-symbols-outlined">person</span><span>Clients</span>
             </a>
             {% endif %}
             {% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}
-            <a href="{% if user.role == 'ADMINISTRATOR' %}{% url 'ops:sites' %}{% else %}#{% endif %}" class="{{ item }} {% if active == 'sites' %}{{ on }}{% else %}{{ off }}{% endif %}">
+            <a href="{% url 'ops:sites' %}" class="{{ item }} {% if active == 'sites' %}{{ on }}{% else %}{{ off }}{% endif %}">
                 <span class="material-symbols-outlined">location_on</span><span>Sites</span>
             </a>
             {% endif %}
-            <a href="{% if user.role == 'ADMINISTRATOR' %}{% url 'ops:subcontractors' %}{% else %}#{% endif %}" class="{{ item }} {% if active == 'subcontractors' %}{{ on }}{% else %}{{ off }}{% endif %}">
+            <a href="{% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}{% url 'ops:subcontractors' %}{% else %}#{% endif %}" class="{{ item }} {% if active == 'subcontractors' %}{{ on }}{% else %}{{ off }}{% endif %}">
                 <span class="material-symbols-outlined">engineering</span><span>Subcontractors</span>
             </a>
-            <a href="{% if user.role == 'ADMINISTRATOR' %}{% url 'ops:schedules' %}{% else %}#{% endif %}" class="{{ item }} {% if active == 'schedules' %}{{ on }}{% else %}{{ off }}{% endif %}">
+            <a href="{% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}{% url 'ops:schedules' %}{% else %}#{% endif %}" class="{{ item }} {% if active == 'schedules' %}{{ on }}{% else %}{{ off }}{% endif %}">
                 <span class="material-symbols-outlined">event</span><span>Schedules</span>
             </a>
-            <a href="#" class="{{ item }} {{ off }}">
+            <a href="{% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}{% url 'ops:invoices' %}{% else %}#{% endif %}" class="{{ item }} {% if active == 'invoices' %}{{ on }}{% else %}{{ off }}{% endif %}">
                 <span class="material-symbols-outlined">receipt_long</span><span>Invoices</span>
             </a>
-            <a href="#" class="{{ item }} {{ off }}">
+            <a href="{% if user.role == 'OWNER' or user.role == 'ADMINISTRATOR' %}{% url 'ops:profitability' %}{% else %}#{% endif %}" class="{{ item }} {% if active == 'reports' %}{{ on }}{% else %}{{ off }}{% endif %}">
                 <span class="material-symbols-outlined">bar_chart</span><span>Reports</span>
             </a>
         </div>
@@ -53,7 +53,8 @@
                 <span class="material-symbols-outlined">group</span><span>Users</span>
             </a>
             {% endif %}
-            <a href="#" class="{{ item }} {{ off }}">
+            <!-- Company settings are Owner-only -->
+            <a href="{% if user.role == 'OWNER' %}{% url 'ops:company_settings' %}{% else %}#{% endif %}" class="{{ item }} {% if active == 'settings' %}{{ on }}{% else %}{{ off }}{% endif %}">
                 <span class="material-symbols-outlined">settings</span><span>Settings</span>
             </a>
             <a href="#" class="{{ item }} {{ off }}">

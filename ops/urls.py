@@ -1,6 +1,6 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path, reverse_lazy
-from . import views
+from . import views, views_calendar, views_invoices, views_reports, views_settings, views_work
 from .forms import OpsPasswordResetForm
 
 # App namespace - allows us to use 'ops:login', 'ops:dashboard', etc.
@@ -64,6 +64,33 @@ urlpatterns = [
     # Contractor portal quick actions (session versions of the work API's clock-in/out)
     path('portal/check-in/', views.portal_check_in_view, name='portal_check_in'),
     path('portal/check-out/', views.portal_check_out_view, name='portal_check_out'),
+
+    # Work completion (contractor clock-in/out, staff log)
+    path('jobs/', views_work.my_jobs_view, name='my_jobs'),
+    path('jobs/<uuid:schedule_id>/clock-in/', views_work.clock_in_view, name='clock_in'),
+    path('work/<uuid:work_id>/clock-out/', views_work.clock_out_view, name='clock_out'),
+    path('work/<uuid:work_id>/', views_work.work_detail_view, name='work_detail'),
+    path('completions/', views_work.completions_view, name='completions'),
+    path('completions/<uuid:work_id>/', views_work.work_detail_view, name='completion_detail'),
+
+    # Contractor invoices (builder, verification, print)
+    path('invoices/', views_invoices.invoice_list_view, name='invoices'),
+    path('invoices/new/', views_invoices.invoice_create_view, name='invoice_create'),
+    path('invoices/<uuid:pk>/', views_invoices.invoice_detail_view, name='invoice_detail'),
+    path('invoices/<uuid:pk>/edit/', views_invoices.invoice_edit_view, name='invoice_edit'),
+    path('invoices/<uuid:pk>/delete/', views_invoices.invoice_delete_view, name='invoice_delete'),
+    path('invoices/<uuid:pk>/decide/', views_invoices.invoice_decide_view, name='invoice_decide'),
+    path('invoices/<uuid:pk>/print/', views_invoices.invoice_print_view, name='invoice_print'),
+
+    # Calendar
+    path('calendar/', views_calendar.calendar_view, name='calendar'),
+    path('calendar/mine/', views_calendar.my_calendar_view, name='my_calendar'),
+
+    # Reports
+    path('reports/profitability/', views_reports.profitability_view, name='profitability'),
+
+    # Settings (Owner only)
+    path('settings/company/', views_settings.company_settings_view, name='company_settings'),
 
     # Logout
     path('logout/', views.logout_view, name='logout'),

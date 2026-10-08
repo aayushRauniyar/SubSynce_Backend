@@ -1,16 +1,109 @@
 /* SubSync custom styles (Tailwind Play CDN covers utility classes; this file
    holds the handful of things utilities can't reach). */
 
+/* Theme tokens: SubSync palette v2 ("L.Point-inspired").
+   Colour vars are space-separated RGB so Tailwind's /<alpha> modifiers work;
+   alpha tokens (borders, hairlines, shadows) are full colour values. */
+:root {
+    --c-surface: 245 243 241;            /* #F5F3F1 page background */
+    --c-surface-lowest: 255 255 255;     /* #FFFFFF cards */
+    --c-surface-low: 250 249 247;        /* #FAF9F7 sidenav */
+    --c-surface-c: 240 237 232;          /* #F0EDE8 list items, inputs */
+    --c-surface-high: 234 230 224;       /* #EAE6E0 stronger items */
+    --c-surface-highest: 228 223 217;    /* #E4DFD9 greige accent */
+    --c-ink: 34 34 33;                   /* #222221 on-surface */
+    --c-text-2: 61 59 55;                /* #3D3B37 */
+    --c-ink-light: 92 89 82;             /* #5C5952 on-surface-variant */
+    --c-outline: 138 134 126;            /* #8A867E */
+    --c-primary: 244 132 43;             /* #F4842B orange */
+    --c-primary-strong: 217 108 16;      /* #D96C10 hover */
+    --c-on-accent: 255 255 255;          /* text on orange/green/red buttons */
+    --c-secondary-container: 253 227 205;/* #FDE3CD */
+    --c-on-secondary-container: 138 74 16; /* #8A4A10 */
+    --c-error: 198 58 47;                /* #C63A2F */
+    --c-success: 14 138 95;              /* #0E8A5F emerald */
+    --c-warning: 180 83 9;               /* #B45309 amber */
+    --c-scheduled: 37 99 235;            /* #2563EB */
+    --c-completed: 14 138 95;            /* #0E8A5F */
+    --c-missed: 217 119 6;               /* #D97706 */
+    --c-violet: 124 58 237;              /* #7C3AED */
+    --outline-variant: #D8D3CB;
+    --card-border: rgba(34, 34, 33, 0.09);
+    --hairline: rgba(34, 34, 33, 0.07);
+    --input-border: rgba(34, 34, 33, 0.16);
+    --glow: rgba(244, 132, 43, 0.35);
+    --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 16px 20px rgba(0, 0, 0, 0.04);
+    color-scheme: light;
+}
+
+html.dark {
+    --c-surface: 27 27 26;               /* #1B1B1A */
+    --c-surface-lowest: 23 23 22;        /* #171716 */
+    --c-surface-low: 31 31 30;           /* #1F1F1E */
+    --c-surface-c: 36 36 34;             /* #242422 */
+    --c-surface-high: 41 41 39;          /* #292927 */
+    --c-surface-highest: 46 46 43;       /* #2E2E2B */
+    --c-ink: 245 243 241;                /* #F5F3F1 */
+    --c-text-2: 217 214 208;             /* #D9D6D0 */
+    --c-ink-light: 168 164 157;          /* #A8A49D */
+    --c-outline: 120 116 110;            /* #78746E */
+    --c-primary: 255 154 71;             /* #FF9A47 */
+    --c-primary-strong: 255 175 110;     /* #FFAF6E */
+    --c-on-accent: 27 27 26;             /* dark text on the brighter dark-mode accents */
+    --c-secondary-container: 61 45 32;   /* #FF9A47 @16% over #1B1B1A */
+    --c-on-secondary-container: 255 184 126; /* #FFB87E */
+    --c-error: 248 113 113;              /* #F87171 */
+    --c-success: 52 211 153;             /* #34D399 */
+    --c-warning: 251 191 36;             /* #FBBF24 */
+    --c-scheduled: 96 165 250;           /* #60A5FA */
+    --c-completed: 52 211 153;           /* #34D399 */
+    --c-missed: 251 191 36;              /* #FBBF24 */
+    --c-violet: 167 139 250;             /* #A78BFA */
+    --outline-variant: rgba(245, 243, 241, 0.14);
+    --card-border: rgba(245, 243, 241, 0.10);
+    --hairline: rgba(245, 243, 241, 0.07);
+    --input-border: rgba(245, 243, 241, 0.16);
+    --glow: rgba(255, 154, 71, 0.40);
+    --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 20px rgba(0, 0, 0, 0.25);
+    color-scheme: dark;
+}
+
+body {
+    transition: background-color 300ms ease-out, color 300ms ease-out;
+}
+
+/* Card: the base surface for app screens */
+.card {
+    background-color: rgb(var(--c-surface-lowest));
+    border: 1px solid var(--card-border);
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+}
+
+/* Dividers and hairlines use the palette's alpha tokens */
+.divide-surface-container > :not([hidden]) ~ :not([hidden]) { border-color: var(--hairline) !important; }
+.border-surface-container-high { border-color: var(--outline-variant) !important; }
+
+/* Older screens use bg-white for cards; keep them readable in dark mode. */
+html.dark .bg-white {
+    background-color: rgb(var(--c-surface-lowest));
+}
+
+:focus-visible {
+    outline: 2px solid rgb(var(--c-primary));
+    outline-offset: 2px;
+}
+
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
-    -webkit-text-fill-color: #222221;
-    -webkit-box-shadow: 0 0 0px 1000px #FFFFFF inset;
+    -webkit-text-fill-color: rgb(var(--c-ink));
+    -webkit-box-shadow: 0 0 0px 1000px rgb(var(--c-surface-lowest)) inset;
     transition: background-color 9999s ease-in-out 0s;
 }
 
 input[type="checkbox"] {
-    accent-color: #F4842B;
+    accent-color: rgb(var(--c-primary));
 }
 
 /* "Sign in as" role toggle: plain radios styled as pill buttons */
@@ -22,4 +115,58 @@ input[type="checkbox"] {
 
 .role-toggle label {
     cursor: pointer;
+}
+
+/* Shared form controls for the app screens */
+.field-input {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--input-border);
+    background-color: rgb(var(--c-surface-lowest));
+    color: rgb(var(--c-ink));
+    padding: 0.625rem 0.875rem;
+    font-size: 16px;
+}
+
+@media (min-width: 768px) {
+    .field-input { font-size: 0.875rem; }
+}
+
+.field-input:focus {
+    outline: none;
+    border-color: rgb(var(--c-primary));
+    box-shadow: 0 0 0 3px var(--glow);
+}
+
+/* Status pills */
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: 9999px;
+    padding: 0.125rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.pill::before {
+    content: "";
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 9999px;
+    background-color: currentColor;
+}
+.pill-scheduled { background: rgb(var(--c-scheduled) / 0.12); color: rgb(var(--c-scheduled)); }
+.pill-in_progress, .pill-pending { background: rgb(var(--c-warning) / 0.12); color: rgb(var(--c-warning)); }
+.pill-completed, .pill-approved, .pill-paid { background: rgb(var(--c-success) / 0.12); color: rgb(var(--c-success)); }
+.pill-missed { background: rgb(var(--c-missed) / 0.14); color: rgb(var(--c-missed)); }
+.pill-rejected, .pill-overdue, .pill-flagged { background: rgb(var(--c-error) / 0.09); color: rgb(var(--c-error)); }
+.pill-cancelled, .pill-issued { background: rgb(var(--c-surface-high)); color: rgb(var(--c-ink-light)); }
+
+/* Calendar chips: no dot, so the site name gets the room */
+.pill.chip { display: flex; min-width: 0; }
+.pill.chip::before { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+    * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }

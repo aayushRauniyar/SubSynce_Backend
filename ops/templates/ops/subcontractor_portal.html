@@ -32,7 +32,7 @@
                     <span>Dashboard</span>
                 </a>
 
-                <a href="#"
+                <a href="{% url 'ops:my_jobs' %}"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
                     <span class="material-symbols-outlined">event</span>
                     <span>My Schedules</span>
@@ -44,7 +44,7 @@
                     <span>Time Sheets</span>
                 </a>
 
-                <a href="#"
+                <a href="{% url 'ops:invoices' %}"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
                     <span class="material-symbols-outlined">receipt_long</span>
                     <span>Invoices</span>
@@ -126,10 +126,10 @@
                     <section class="w-full xl:flex-1 min-w-0 bg-white rounded-2xl border border-[#5B5A77]/10 shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-5">
                         <div class="flex items-center justify-between gap-3 mb-4">
                             <h2 class="text-sm font-medium text-[#222222]">Assigned Jobs</h2>
-                            <!-- No contractor schedule pages exist yet -->
+                            <!-- "View all" opens My Jobs; there is no weekly view yet -->
                             <div class="flex items-center gap-2">
                                 <button type="button" disabled title="Weekly view isn't built yet" class="px-3 py-1.5 rounded-md border border-[#E2E2E2] text-xs text-[#494949] cursor-not-allowed">Weekly</button>
-                                <button type="button" disabled title="My Schedules page isn't built yet" class="px-3 py-1.5 rounded-md border border-[#E2E2E2] text-xs text-[#494949] cursor-not-allowed">View all</button>
+                                <a href="{% url 'ops:my_jobs' %}" class="px-3 py-1.5 rounded-md border border-[#E2E2E2] text-xs text-[#494949] hover:bg-[#F3F3F3] transition-colors">View all</a>
                             </div>
                         </div>
                         <div class="rounded-xl border border-[#E9E9E9] divide-y divide-[#E9E9E9]">
