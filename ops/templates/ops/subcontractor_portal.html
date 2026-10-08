@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Subcontractor Portal - SubSync{% endblock %}
+
+{% block extra_head %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="flex h-screen overflow-hidden font-['Poppins']">
+    <!-- Sidebar (drawer below lg, toggled by base.html) -->
+    <div data-sidebar-overlay class="hidden fixed inset-0 z-40 bg-ink/40 lg:hidden"></div>
+    <aside data-sidebar class="fixed inset-y-0 left-0 z-50 flex flex-col w-64 shrink-0 bg-white border-r border-surface-container-high -translate-x-full transition-transform duration-200 lg:static lg:translate-x-0 lg:transition-none">
+        <!-- Logo -->
+        <div class="flex items-center gap-3 px-6 py-5 border-b border-surface-container-high">
+            <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-on-primary" style="font-size: 20px;">cleaning_services</span>
+            </div>
+            <span class="text-lg font-semibold text-ink">SubSync</span>
+            <button type="button" data-sidebar-close aria-label="Close menu" class="lg:hidden ml-auto p-1.5 rounded-lg text-ink-light hover:bg-surface-container">
+                <span class="material-symbols-outlined" style="font-size: 20px;">close</span>
+            </button>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 overflow-y-auto px-3 py-4">
+            <div class="space-y-1">
+                <a href="{% url 'ops:dashboard' %}"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium bg-primary/10 text-primary">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="#"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">event</span>
+                    <span>My Schedules</span>
+                </a>
+
+                <a href="#"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">schedule</span>
+                    <span>Time Sheets</span>
+                </a>
+
+                <a href="#"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                    <span>Invoices</span>
+                </a>
+
+                <a href="#"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">bar_chart</span>
+                    <span>Reports</span>
+                </a>
+            </div>
+
+            <div class="my-3 border-t border-dashed border-surface-container-high"></div>
+
+            <div class="space-y-1">
+                <a href="#"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">person</span>
+                    <span>Profile</span>
+                </a>
+
+                <a href="#"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">help</span>
+                    <span>Help</span>
+                </a>
+
+                <a href="{% url 'ops:logout' %}"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-light hover:bg-surface-container hover:text-ink transition-colors">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        {% include 'ops/partials/_topbar.html' with display_name=full_name role_label='Subcontractor' %}
+
+        <main class="flex-1 overflow-y-auto bg-[linear-gradient(312deg,#FCE2CD,#F4F3F3)]">
+            <div class="w-full px-4 sm:px-8 lg:px-14 py-8">
+                <div class="mb-8">
+                    <h1 class="text-2xl font-semibold text-[#222222]">Subcontractor Portal</h1>
+                    <p class="mt-1 text-base text-[#494949]">Welcome back, {{ full_name }}. Here's your overview for today.</p>
+                </div>
+
+                <!-- Summary cards (real data; empty states when there's nothing yet) -->
+                {% with card='bg-white rounded-2xl border border-[#5B5A77]/10 shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-5 flex items-start justify-between gap-3' icon='w-10 h-10 shrink-0 rounded-full flex items-center justify-center' title='text-xs text-[#494949]' value='mt-2 text-2xl font-semibold text-[#222222]' sub='mt-1 text-[11px] text-[#494949]' %}
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
+                    <div class="{{ card }}">
+                        <div><p class="{{ title }}">Today's Jobs</p><p class="{{ value }}">{{ today_jobs_count }}</p><p class="{{ sub }}">Assigned to you</p></div>
+                        <span class="{{ icon }} bg-[#FAF2E8] text-[#F27E22]"><span class="material-symbols-outlined" style="font-size: 20px;">assignment</span></span>
+                    </div>
+                    <div class="{{ card }}">
+                        <div>
+                            <p class="{{ title }}">Next Service</p>
+                            {% if next_service %}
+                            <p class="{{ value }}">{{ next_service.time|time:"g:i A" }}</p><p class="{{ sub }}">{{ next_service.relative }}</p>
+                            {% else %}
+                            <p class="{{ value }} text-[#494949]">—</p><p class="{{ sub }}">No upcoming service</p>
+                            {% endif %}
+                        </div>
+                        <span class="{{ icon }} bg-[#EEEAFD] text-[#7C6AE8]"><span class="material-symbols-outlined" style="font-size: 20px;">schedule</span></span>
+                    </div>
+                    <div class="{{ card }}">
+                        <div><p class="{{ title }}">Completed This Week</p><p class="{{ value }}">{{ completed_this_week }}</p><p class="{{ sub }}">Jobs completed</p></div>
+                        <span class="{{ icon }} bg-[#E3F8EC] text-[#34C27A]"><span class="material-symbols-outlined" style="font-size: 20px;">check_circle</span></span>
+                    </div>
+                    <div class="{{ card }}">
+                        <div><p class="{{ title }}">Pending Invoices</p><p class="{{ value }}">${{ pending_invoices.total|floatformat:"2g" }}</p><p class="{{ sub }}">{{ pending_invoices.count }} invoice{{ pending_invoices.count|pluralize }} pending</p></div>
+                        <span class="{{ icon }} bg-[#FFF6DB] text-[#E0A800]"><span class="material-symbols-outlined" style="font-size: 20px;">receipt_long</span></span>
+                    </div>
+                </div>
+                {% endwith %}
+
+                <div class="flex flex-col xl:flex-row gap-4 items-start">
+                    <!-- Assigned Jobs: only schedules on sites assigned to this contractor -->
+                    <section class="w-full xl:flex-1 min-w-0 bg-white rounded-2xl border border-[#5B5A77]/10 shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-5">
+                        <div class="flex items-center justify-between gap-3 mb-4">
+                            <h2 class="text-sm font-medium text-[#222222]">Assigned Jobs</h2>
+                            <!-- No contractor schedule pages exist yet -->
+                            <div class="flex items-center gap-2">
+                                <button type="button" disabled title="Weekly view isn't built yet" class="px-3 py-1.5 rounded-md border border-[#E2E2E2] text-xs text-[#494949] cursor-not-allowed">Weekly</button>
+                                <button type="button" disabled title="My Schedules page isn't built yet" class="px-3 py-1.5 rounded-md border border-[#E2E2E2] text-xs text-[#494949] cursor-not-allowed">View all</button>
+                            </div>
+                        </div>
+                        <div class="rounded-xl border border-[#E9E9E9] divide-y divide-[#E9E9E9]">
+                            {% for job in assigned_jobs %}
+                            <div class="flex items-center gap-3 sm:gap-5 px-4 py-4">
+                                <div class="w-14 shrink-0">
+                                    <p class="text-base font-medium text-[#F27E22] leading-tight">{{ job.time|time:"h:i" }}</p>
+                                    <p class="text-xs text-[#222222]">{{ job.time|time:"A" }}</p>
+                                    {% if not job.is_today %}<p class="text-[10px] text-[#494949]">{{ job.date|date:"D d M" }}</p>{% endif %}
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-sm font-medium text-[#222222] truncate">Site: {{ job.site_name }}</p>
+                                    <p class="text-[11px] text-[#494949] truncate">{{ job.site_address }}</p>
+                                    {% if job.service_info %}<span class="inline-block mt-1.5 px-2.5 py-0.5 rounded-full bg-[#FAF2E8] text-[#F27E22] text-[10px]">{{ job.service_info|capfirst }}</span>{% endif %}
+                                </div>
+                                <span class="shrink-0 px-3 py-1 rounded-md text-[10px]
+                                    {% if job.status == 'In Progress' %}bg-[#E3F0FF] text-[#4A90E2]{% elif job.status == 'Completed' %}bg-[#E3F8EC] text-[#34C27A]{% elif job.status == 'Scheduled' %}bg-[#EEEAFD] text-[#7C6AE8]{% else %}bg-[#F3F3F3] text-[#494949]{% endif %}">{{ job.status }}</span>
+                            </div>
+                            {% empty %}
+                            <p class="text-sm text-[#494949] py-10 text-center">No assigned jobs.</p>
+                            {% endfor %}
+                        </div>
+                        {% if assigned_jobs %}<p class="mt-3 text-[10px] text-[#494949]">Showing 1 to {{ assigned_jobs|length }} of {{ assigned_jobs|length }} jobs</p>{% endif %}
+                    </section>
+
+                    <div class="w-full xl:w-[340px] shrink-0 flex flex-col gap-4">
+                        <!-- Quick Actions: session versions of the work API's clock-in / clock-out -->
+                        <section class="bg-white rounded-2xl border border-[#5B5A77]/10 shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-5">
+                            <h2 class="text-sm font-medium text-[#222222] mb-4">Quick Actions</h2>
+                            {% with action='flex items-start gap-3 text-left rounded-lg p-1 -m-1 hover:bg-[#FAF2E8]/60 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-colors' icon='w-9 h-9 shrink-0 rounded-full bg-[#FAF2E8] text-[#F27E22] flex items-center justify-center' %}
+                            <div class="grid grid-cols-2 gap-x-4 gap-y-5">
+                                <button type="button" class="{{ action }}" onclick="openWorkModal('checkin-modal')"
+                                        {% if not check_in_jobs %}disabled title="No scheduled jobs to check in to today"{% endif %}>
+                                    <span class="{{ icon }}"><span class="material-symbols-outlined" style="font-size: 18px;">login</span></span>
+                                    <span><span class="block text-xs font-medium text-[#222222]">Check In</span><span class="block text-[11px] text-[#494949]">Start your work</span></span>
+                                </button>
+                                <button type="button" class="{{ action }}" onclick="openWorkModal('checkout-modal', 'Check Out')"
+                                        {% if not active_work %}disabled title="No work in progress"{% endif %}>
+                                    <span class="{{ icon }}"><span class="material-symbols-outlined" style="font-size: 18px;">logout</span></span>
+                                    <span><span class="block text-xs font-medium text-[#222222]">Check Out</span><span class="block text-[11px] text-[#494949]">End your work</span></span>
+                                </button>
+                                <button type="button" class="{{ action }} col-span-2" onclick="openWorkModal('checkout-modal', 'Submit Completion')"
+                                        {% if not active_work %}disabled title="No work in progress"{% endif %}>
+                                    <span class="{{ icon }}"><span class="material-symbols-outlined" style="font-size: 18px;">task</span></span>
+                                    <span><span class="block text-xs font-medium text-[#222222]">Submit Completion</span><span class="block text-[11px] text-[#494949]">Submit work for review</span></span>
+                                </button>
+                            </div>
+                            {% endwith %}
+                        </section>
+
+                        <!-- Alerts: no notification backend exists yet -->
+                        <section class="bg-white rounded-2xl border border-[#5B5A77]/10 shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-8 h-8 rounded-full bg-[#FAF2E8] text-[#F27E22] flex items-center justify-center"><span class="material-symbols-outlined" style="font-size: 16px;">notifications</span></span>
+                                    <h2 class="text-sm font-medium text-[#222222]">Alerts &amp; Notifications</h2>
+                                </div>
+                                <button type="button" disabled title="No notification source exists yet" class="px-3 py-1.5 rounded-md border border-[#E2E2E2] text-xs text-[#494949] cursor-not-allowed">View all</button>
+                            </div>
+                            <p class="rounded-xl border border-[#E9E9E9] text-xs text-[#494949] text-center py-6">No alerts.</p>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Check In modal -->
+{% with field='w-full px-3.5 py-2.5 rounded-xl bg-surface border border-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm' label='block text-sm font-medium text-ink mb-1.5' box='bg-white rounded-2xl w-full max-w-[480px] max-h-[90vh] overflow-y-auto p-6' %}
+<div id="checkin-modal" class="hidden fixed inset-0 z-40 items-center justify-center bg-ink/40 px-4" onclick="if (event.target === this) closeWorkModals();">
+    <div class="{{ box }}">
+        <div class="flex items-center justify-between mb-5">
+            <h2 class="text-lg font-semibold text-ink">Check In</h2>
+            <button type="button" onclick="closeWorkModals()" class="p-1.5 rounded-lg hover:bg-surface-container"><span class="material-symbols-outlined text-ink-light">close</span></button>
+        </div>
+        <form method="post" action="{% url 'ops:portal_check_in' %}">
+            {% csrf_token %}
+            <label class="{{ label }}" for="checkin-schedule">Today's job *</label>
+            <select name="schedule" id="checkin-schedule" required class="{{ field }}">
+                {% for s in check_in_jobs %}<option value="{{ s.id }}">{{ s.scheduled_time|time:"g:i A" }} · {{ s.site.name }}</option>{% endfor %}
+            </select>
+            <div class="flex items-center justify-end gap-3 mt-6">
+                <button type="button" onclick="closeWorkModals()" class="px-4 py-2.5 rounded-xl border border-surface-container-high text-sm font-medium text-ink hover:bg-surface-container transition-colors">Cancel</button>
+                <button type="submit" class="px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-on-primary text-sm font-medium transition-colors">Check In</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Check Out / Submit Completion modal (the backend records both in one clock-out) -->
+<div id="checkout-modal" class="hidden fixed inset-0 z-40 items-center justify-center bg-ink/40 px-4" onclick="if (event.target === this) closeWorkModals();">
+    <div class="{{ box }}">
+        <div class="flex items-center justify-between mb-5">
+            <h2 id="checkout-title" class="text-lg font-semibold text-ink">Check Out</h2>
+            <button type="button" onclick="closeWorkModals()" class="p-1.5 rounded-lg hover:bg-surface-container"><span class="material-symbols-outlined text-ink-light">close</span></button>
+        </div>
+        <form method="post" action="{% url 'ops:portal_check_out' %}" enctype="multipart/form-data" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="{{ label }}" for="checkout-work">Job in progress *</label>
+                <select name="work" id="checkout-work" required class="{{ field }}">
+                    {% for w in active_work %}<option value="{{ w.id }}">{{ w.schedule.site.name }} · checked in {{ w.check_in_time|date:"D d M, g:i A" }}</option>{% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="{{ label }}" for="checkout-notes">Completion notes</label>
+                <textarea name="completion_notes" id="checkout-notes" rows="3" class="{{ field }}"></textarea>
+            </div>
+            <div>
+                <label class="{{ label }}" for="checkout-images">Evidence photos</label>
+                <input type="file" name="images" id="checkout-images" multiple accept="image/*" class="block w-full text-xs text-ink-light file:mr-3 file:px-3 file:py-1.5 file:rounded-lg file:border file:border-surface-container-high file:bg-white file:text-xs file:text-ink">
+                <p class="mt-1 text-[11px] text-ink-light">Optional. Images up to 5MB each.</p>
+            </div>
+            <p class="text-[11px] text-ink-light">Checking out records the end time and marks the job as completed.</p>
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <button type="button" onclick="closeWorkModals()" class="px-4 py-2.5 rounded-xl border border-surface-container-high text-sm font-medium text-ink hover:bg-surface-container transition-colors">Cancel</button>
+                <button type="submit" class="px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-on-primary text-sm font-medium transition-colors">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endwith %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function openWorkModal(id, title) {
+        if (title) document.getElementById('checkout-title').textContent = title;
+        const modal = document.getElementById(id);
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeWorkModals() {
+        document.querySelectorAll('#checkin-modal, #checkout-modal').forEach(function (modal) {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        });
+    }
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') closeWorkModals();
+    });
+</script>
+{% endblock %}
